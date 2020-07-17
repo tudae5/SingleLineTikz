@@ -1,0 +1,3069 @@
+%================================================================================================
+% singlelinetikz.sty  -- LATEX PACKAGE FOR THE CREATION OF SINGLE LINE DIAGRAMMS WITH TIKZ -- 
+% 
+% Author:  Isabelle Brandherm
+% Contact: i.brandherm@ikp.tu-darmstadt.de
+%================================================================================================
+%
+\NeedsTeXFormat{LaTeX2e}
+%
+\def\SingLineversion{1.0.0}
+\def\SingLineversiondate{2020/06/15}
+%
+\ProvidesPackage{singlelinetikz}[\SingLineversiondate{} Single Line Diagramm Package \SingLineversion]
+%
+\RequirePackage{tikz}
+\RequirePackage{xparse}
+\RequirePackage{ifthen}
+\RequirePackage{pgfmath}
+%
+%
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
+%
+\newcommand{\elsize}{10.*0.5pt}
+\DeclareOption{tiny}{\renewcommand{\elsize}{6.*0.5pt}}
+\DeclareOption{small}{\renewcommand{\elsize}{8.*0.5pt}}
+\DeclareOption{normal}{\renewcommand{\elsize}{10.*0.5pt}}
+\DeclareOption{tall}{\renewcommand{\elsize}{12.*0.5pt}}
+\DeclareOption{huge}{\renewcommand{\elsize}{14.*0.5pt}}
+\ProcessOptions\relax
+%
+\newcommand{\singlelinetiny}{\renewcommand{\elsize}{6.*0.5pt}}
+\newcommand{\singlelinesmall}{\renewcommand{\elsize}{8.*0.5pt}}
+\newcommand{\singlelinenormal}{\renewcommand{\elsize}{10.*0.5pt}}
+\newcommand{\singlelinetall}{\renewcommand{\elsize}{12.*0.5pt}}
+\newcommand{\singlelinehuge}{\renewcommand{\elsize}{14.*0.5pt}}
+%
+%
+%
+%================================================================================================
+%General Settings 
+%================================================================================================
+\makeatletter
+%
+%
+\pgfkeys{/tikz/.cd,
+single line width/.initial=0.4pt,
+single line width/.get=\singleline@linewidth,% 
+single line width/.get=\singleline@arrowlinewidth,% 
+bus line width/.initial=0.3*\elsize,
+bus line width/.get=\buslinewidth,
+}
+%
+%
+\tikzset{bus node/.style={inner sep=0pt, auto, node distance=0.2}}
+%
+%
+%================================================================================================
+% Connectors between elements, defined as arrowheads
+% 
+% c    	= 'closed'
+% o	= 'open'
+% x	= 'no element'
+% t	= 'to'
+% f	= 'from'	
+% 
+% The defined arrow tips can be found in the documentation.
+%================================================================================================
+%	
+%=====
+%Basic settings and elements for connectors
+%=====
+\def\pgf@connector@setupcode{\pgfarrowssetlineend{0pt}
+\pgfarrowssettipend{0pt}
+\pgfarrowssetvisualbackend{-\pgfarrowlength\advance\pgf@x by-.\pgflinewidth}
+\pgfarrowssetbackend{-\pgfarrowlength\advance\pgf@x by-.\pgflinewidth}
+\pgfarrowssetvisualtipend{0.2\pgfarrowlength\advance\pgf@x by.5\pgflinewidth}
+\pgfarrowssavethe\pgfarrowlength
+\pgfarrowlinewidth=\pgflinewidth
+\pgfarrowssavethe\pgfarrowlinewidth
+\pgfarrowshullpoint{-\pgfarrowlength\advance\pgf@x by-\pgflinewidth}{0.2\pgfarrowlength\advance\pgf@y by.5\pgflinewidth}
+\pgfarrowshullpoint{-\pgfarrowlength\advance\pgf@x by-\pgflinewidth}{-0.2\pgfarrowlength\advance\pgf@y by-.5\pgflinewidth}
+\pgfarrowshullpoint{0.2\pgfarrowlength\advance\pgf@x by.5\pgflinewidth}{0.2\pgfarrowlength\advance\pgf@y by.5\pgflinewidth}
+\pgfarrowshullpoint{0.2\pgfarrowlength\advance\pgf@x by.5\pgflinewidth}{-0.2\pgfarrowlength\advance\pgf@y by-.5\pgflinewidth}
+}
+%
+%== "to" - arrow
+%
+\def\singleline@toarrow{%
+\pgfpathmoveto{\pgfpoint{-2.7\pgfarrowlength}{0pt}}
+\pgfpathlineto{\pgfpoint{-2.7\pgfarrowlength}{-0.2\pgfarrowlength-0.5*\singleline@arrowlinewidth}}
+\pgfpathlineto{\pgfpoint{-2.3\pgfarrowlength+\singleline@arrowlinewidth}{0pt}}
+\pgfpathlineto{\pgfpoint{-2.7\pgfarrowlength}{0.2\pgfarrowlength+0.5*\singleline@arrowlinewidth}}
+\pgfpathclose
+\pgfusepathqfill%
+}
+%
+%== "from" - arrow
+%
+\def\singleline@fromarrow{%
+\pgfpathmoveto{\pgfpoint{-2.7\pgfarrowlength}{0pt}}
+\pgflineto{\pgfpoint{-2.3\pgfarrowlength+\singleline@arrowlinewidth}{-0.2\pgfarrowlength-0.5*\singleline@arrowlinewidth}}
+\pgflineto{\pgfpoint{-2.3\pgfarrowlength+\singleline@arrowlinewidth}{0.2\pgfarrowlength+0.5*\singleline@arrowlinewidth}}
+\pgfpathclose
+\pgfusepathqfill%
+}
+%
+%== white filled square
+%
+\def\singleline@opensquare{%
+\pgfscope
+\pgfpathrectanglecorners{\pgfpoint{-0.6\pgfarrowlength}{-0.2\pgfarrowlength-0.5*\singleline@arrowlinewidth}}{\pgfpoint{-\pgfarrowlength-\singleline@arrowlinewidth}{0.2\pgfarrowlength+0.5*\singleline@arrowlinewidth}}
+\pgfsetfillcolor{white}
+\pgfusepathqfillstroke
+\endpgfscope%
+}
+%
+%== default color filled square
+%
+\def\singleline@closedsquare{%
+\pgfpathrectanglecorners{\pgfpoint{-0.6\pgfarrowlength}{-0.2\pgfarrowlength-0.5*\singleline@arrowlinewidth}}{\pgfpoint{-\pgfarrowlength-\singleline@arrowlinewidth}{0.2\pgfarrowlength+0.5*\singleline@arrowlinewidth}}
+\pgfusepathqfill%
+}
+%
+%== white filled circle
+%
+\def\singleline@opencircle{%
+\pgfscope
+\pgfpathmoveto{\pgfpoint{0pt}{0pt}}
+\pgfpathcircle{\pgfpoint{0pt}{0pt}}{0.2\pgfarrowlength+.5*\singleline@arrowlinewidth}
+\pgfsetfillcolor{white}
+\pgfsetstrokecolor{black}
+\pgfpathclose
+\pgfusepathqfillstroke
+\endpgfscope
+}
+%
+%== default color filled circle
+%
+\def\singleline@closedcircle{%
+\pgfscope
+\pgfpathmoveto{\pgfpoint{0pt}{0pt}}
+\pgfpathcircle{\pgfpoint{0pt}{0pt}}{0.2\pgfarrowlength+0.5*\singleline@arrowlinewidth}
+\pgfpathclose
+\pgfusepathqfill
+\endpgfscope%
+}
+%		
+%=====
+% Arrow tip declarations for "connector" option
+%=====
+%
+\pgfdeclarearrow{
+name = cxx,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = cxt,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = cxf,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = ccx,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@closedsquare
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = cct,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@closedsquare
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = ccf,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@closedsquare
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = cox,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@opensquare
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = cot,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@opensquare
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = cof,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedcircle
+\singleline@opensquare
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = oxx,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode},
+drawing code = {
+\singleline@opencircle
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = oxt,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode},
+drawing code = {
+\singleline@opencircle
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = oxf,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode},
+drawing code = {
+\singleline@opencircle
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = ocx,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opencircle
+\singleline@closedsquare
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = oct,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opencircle
+\singleline@closedsquare
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = ocf,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opencircle
+\singleline@closedsquare
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = oox,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opencircle
+\singleline@opensquare
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = oot,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opencircle
+\singleline@opensquare
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = oof,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opencircle
+\singleline@opensquare
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = xcx,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedsquare
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = xct,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedsquare
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = xcf,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@closedsquare
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = xox,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opensquare
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = xot,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opensquare
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{%
+name = xof,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@opensquare
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = xxt,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@toarrow
+},
+defaults={length=8pt}}
+%
+%==
+%
+\pgfdeclarearrow{
+name = xxf,
+parameters={\the\pgfarrowlength},
+setup code={\pgf@connector@setupcode
+},
+drawing code = {
+\singleline@fromarrow
+},
+defaults={length=8pt}}
+%
+%================================================================================================
+%================================================================================================
+%SHAPES:
+% Shapes are further classified into shapes used in monopoles, shapes used in bipoles and standalone nodes. All shapes that are used in commands are prefixed with 'sl'.
+%
+% Monopole				                 Shape identifiers
+%-----------------------------------------------------------------------------------------------------
+% grid							slgrid
+% load							slload
+%                               	                slsmallload
+% machine						slcircle
+% photovoltaic					        slpv 
+% ground						slground
+%
+%
+% Bipole						Shape identifier
+%-------------------------------------------------------------------------------------
+% inverter						slacdc
+%							sldcac
+%							sldcdc
+% transformer					        sltrafo
+% two colored transformer                               sltwocolortrafo
+% variable coupling transformer	                        slregtrafo
+% auto transformer				        slautotransformer
+% voltage transformer			                slvoltagetransformer
+% switch						slswitch
+% disconnect switch				        sldisconswitch
+% load-break						slloadbreakswitch
+% circuit breaker				        slcircbreaker
+% reactor						slreactor
+% variable counpling reactor 		                slregreactor
+% capacitor						slcapacitor
+% variable capacitor 			                slregcapacitor
+% resistor 						slresistor
+% variable resistor				        slregresistor
+% impedance						slimpedance
+% inductance						slinductance
+% three phase line 				        sllinetp
+%
+% Standalone						Shape identifier
+%--------------------------------------------------------------------------------------
+% delta connection					sltrafotraingle
+% zig zag connection				        sltrafozigzag
+% star (y) connection				        sltrafostar
+% current transformer 			                current transformer
+% fault 						fault
+%
+%================================================================================================
+%
+\makeatletter
+%
+%%%
+%==============MONOPOLE SHAPES=======================
+%------------------Grid------------------
+%%%
+\pgfdeclareshape{slgrid}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/grid/scale}{\singleline@gridscale}
+	\pgfmathsetlength\pgf@x{\singleline@gridscale*2.5*(\elsize)} 
+	\pgfmathsetlength\pgf@y{\singleline@gridscale*1.61*5*0.5*(\elsize)} 
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/grid/scale}{\singleline@gridscale}
+\def\singleline@gridwidth{\singleline@gridscale*2.5*\elsize}
+\def\singleline@gridhight{\singleline@gridscale*5*1.61*0.5*\elsize}
+
+\pgfpathrectanglecorners{\pgfpoint{-\singleline@gridwidth}{-\singleline@gridhight}}{\pgfpoint{\singleline@gridwidth}{\singleline@gridhight}}
+\pgfpathmoveto{\pgfpoint{0pt}{-\singleline@gridhight}}
+\pgflineto{\pgfpoint{-\singleline@gridwidth}{0pt}}
+\pgflineto{\pgfpoint{0pt}{\singleline@gridhight}}
+\pgflineto{\pgfpoint{\singleline@gridwidth}{0pt}}
+\pgflineto{\pgfpoint{0pt}{-\singleline@gridhight}}
+\pgfpathmoveto{\pgfpoint{-\singleline@gridwidth}{-\singleline@gridhight}}
+\pgflineto{\pgfpoint{\singleline@gridwidth}{\singleline@gridhight}}
+\pgfpathmoveto{\pgfpoint{-\singleline@gridwidth}{\singleline@gridhight}}
+\pgflineto{\pgfpoint{\singleline@gridwidth}{-\singleline@gridhight}}
+\pgfusepathqstroke
+
+}
+}
+%----------------PV-----------------------
+%%%
+\pgfdeclareshape{slpv}{
+\savedanchor{\upperrightcorner}{%
+\pgfkeysgetvalue{/tikz/singleline/monopoles/pv/scale}{\singleline@pvscale}
+	\pgfmathsetlength\pgf@x{\singleline@pvscale*1.61*4*0.5*(\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@pvscale*2*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/pv/scale}{\singleline@pvscale}
+\def\singleline@pvwidth{\singleline@pvscale*1.61*4*0.5*(\elsize)}
+\def\singleline@pvhight{\singleline@pvscale*2*(\elsize)}
+\pgfpathrectanglecorners{\pgfpoint{-\singleline@pvwidth}{-\singleline@pvhight}}{\pgfpoint{\singleline@pvwidth}{\singleline@pvhight}}
+\pgfpathmoveto{\pgfpoint{-\singleline@pvwidth}{\singleline@pvhight}}
+\pgflineto{\singleline@pvwidth\pgfpoint{-\singleline@pvwidth +1.73*\singleline@pvhight}{0pt}}
+\pgfpathlineto{\pgfpoint{-\singleline@pvwidth}{-\singleline@pvhight}}
+\pgfusepathqstroke
+}
+}
+%------------------LOAD--------------------------
+%%%
+\pgfdeclareshape{slload}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/load/scale}{\singleline@loadscale}
+	\pgfmathsetlength\pgf@x{\singleline@loadscale*2*(\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@loadscale*1.6*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/load/scale}{\singleline@loadscale}
+\def\singleline@loadwidth{\singleline@loadscale*2*(\elsize)}
+\def\singleline@loadhight{\singleline@loadscale*1.61*(\elsize)}
+\pgfpathmoveto{\pgfpoint{-\singleline@loadwidth}{-\singleline@loadhight}}
+\pgflineto{\pgfpoint{-\singleline@loadwidth}{\singleline@loadhight}}
+\pgflineto{\pgfpoint{\singleline@loadwidth}{0pt}}
+\pgfpathclose
+\pgfusepathqstroke
+}
+}
+%
+%=========
+%
+\pgfdeclareshape{slsmallload}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/load/scale}{\singleline@loadscale}
+	\pgfmathsetlength\pgf@x{\singleline@loadscale*1*(\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@loadscale*0.8*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+%
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/load/scale}{\singleline@loadscale}
+\def\singleline@loadwidth{\singleline@loadscale*1*(\elsize)}
+\def\singleline@loadhight{\singleline@loadscale*0.8*(\elsize)}
+\pgfpathmoveto{\pgfpoint{-\singleline@loadwidth}{-\singleline@loadhight}}
+\pgflineto{\pgfpoint{-\singleline@loadwidth}{\singleline@loadhight}}
+\pgflineto{\pgfpoint{\singleline@loadwidth}{0pt}}
+\pgfpathclose
+\pgfusepathqfill
+}
+}
+%
+%
+%---------------------GROUND----------------
+%
+%
+\pgfdeclareshape{slground}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/ground/scale}{\singleline@groundscale}
+	\pgfmathsetlength\pgf@x{1*\singleline@groundscale*\elsize}
+	\pgfmathsetlength\pgf@y{2.5*\singleline@groundscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/ground/scale}{\singleline@groundscale}
+\def\singleline@groundsize{\elsize*\singleline@groundscale}
+\pgfpathmoveto{\pgfpoint{-\singleline@groundsize}{2.5*\singleline@groundsize}}
+\pgflineto{\pgfpoint{-\singleline@groundsize}{-2.5*\singleline@groundsize}}
+\pgfpathmoveto{\pgfpoint{0pt}{2*\singleline@groundsize}}
+\pgflineto{\pgfpoint{0pt}{-2*\singleline@groundsize}}
+\pgfpathmoveto{\pgfpoint{\singleline@groundsize}{1.5*\singleline@groundsize}}
+\pgflineto{\pgfpoint{\singleline@groundsize}{-1.5*\singleline@groundsize}}
+\pgfusepathqstroke
+}
+}
+%
+%
+%------------------Machine-------------------
+%
+%
+\pgfdeclareshape{slcircle}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/machine/scale}{\singleline@machinescale}
+	\pgfmathsetlength\pgf@x{\singleline@machinescale*3*\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@machinescale*3*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderellipse{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/monopoles/machine/scale}{\singleline@machinescale}
+\def\singleline@machinesize{\singleline@machinescale*3*(\elsize)}
+\pgfpathmoveto{\pgforigin}
+\pgfpathcircle{\pgforigin}{\singleline@machinesize}
+\pgfusepathqstroke
+}
+}
+%%%%%%
+%%%%%%Tilde for generator symbol
+\tikzset{gentilde/.pic={
+\pgfpathmoveto{\pgfpoint{-5}{0}}
+\pgfpathsine{\pgfpoint{2.5}{2}}
+\pgfpathcosine{\pgfpoint{2.5}{-2}}
+\pgfpathsine{\pgfpoint{2.5}{-2}}
+\pgfpathcosine{\pgfpoint{2.5}{2}}
+\pgfusepathqstroke}}
+%
+%
+%
+%===============Bipole Shapes======================
+%
+%---------------Inverter-----------------------------
+%
+%
+\pgfdeclareshape{slacdc}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/inverter/scale}{\singleline@inverterscale}
+	\pgfmathsetlength\pgf@x{\singleline@inverterscale*2*(\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@inverterscale*2*(\elsize)} }
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/inverter/scale}{\singleline@inverterscale}
+\def\inverterwidth{\singleline@inverterscale*2*(\elsize)}
+\pgfpathmoveto{\pgforigin}
+\pgfpathrectanglecorners{\pgfpoint{-\inverterwidth}{-\inverterwidth}}{\pgfpoint{\inverterwidth}{\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{-\inverterwidth}{-\inverterwidth}}
+\pgfpathlineto{\pgfpoint{\inverterwidth}{\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{0pt}{-0.5*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{0.75*\inverterwidth}{-0.5*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{0pt}{-0.75*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{0.35*\inverterwidth}{-0.75*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{0.4*\inverterwidth}{-0.75*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{0.75*\inverterwidth}{-0.75*\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{-0.75*\inverterwidth}{0.625*\inverterwidth}}
+\pgfpathsine{\pgfpoint{0.25*\inverterwidth}{-0.125*\inverterwidth}}
+\pgfpathcosine{\pgfpoint{0.25*\inverterwidth}{0.125*\inverterwidth}}
+\pgfpathsine{\pgfpoint{0.25*\inverterwidth}{0.125*\inverterwidth}}
+\pgfpathcosine{\pgfpoint{0.25*\inverterwidth}{-0.125*\inverterwidth}}
+\pgfusepathqstroke}
+}
+%
+%==============
+%
+\pgfdeclareshape{sldcdc}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/inverter/scale}{\singleline@inverterscale}
+	\pgfmathsetlength\pgf@x{\singleline@inverterscale*2*(\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@inverterscale*2*(\elsize)} }
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/inverter/scale}{\singleline@inverterscale}
+\def\inverterwidth{\singleline@inverterscale*2*(\elsize)}
+\pgfpathmoveto{\pgforigin}
+\pgfpathrectanglecorners{\pgfpoint{-\inverterwidth}{-\inverterwidth}}{\pgfpoint{\inverterwidth}{\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{-\inverterwidth}{-\inverterwidth}}
+\pgfpathlineto{\pgfpoint{\inverterwidth}{\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{0pt}{-0.5*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{0.75*\inverterwidth}{-0.5*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{0pt}{-0.75*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{0.35*\inverterwidth}{-0.75*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{0.4*\inverterwidth}{-0.75*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{0.75*\inverterwidth}{-0.75*\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{0pt}{0.75*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{-0.75*\inverterwidth}{0.75*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{0pt}{0.5*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{-0.35*\inverterwidth}{0.5*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{-0.4*\inverterwidth}{0.5*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{-0.75*\inverterwidth}{0.5*\inverterwidth}}
+\pgfusepathqstroke
+}
+}
+%
+%====================
+%
+\pgfdeclareshape{sldcac}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/inverter/scale}{\singleline@inverterscale}
+	\pgfmathsetlength\pgf@x{\singleline@inverterscale*2*(\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@inverterscale*2*(\elsize)} }
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/inverter/scale}{\singleline@inverterscale}
+\def\inverterwidth{\singleline@inverterscale*2*(\elsize)}
+\pgfpathmoveto{\pgforigin}
+\pgfpathrectanglecorners{\pgfpoint{-\inverterwidth}{-\inverterwidth}}{\pgfpoint{\inverterwidth}{\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{-\inverterwidth}{-\inverterwidth}}
+\pgfpathlineto{\pgfpoint{\inverterwidth}{\inverterwidth}}
+\pgfusepathqstroke
+
+\pgfpathmoveto{\pgfpoint{0pt}{0.75*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{-0.75*\inverterwidth}{0.75*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{0pt}{0.5*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{-0.35*\inverterwidth}{0.5*\inverterwidth}}
+\pgfpathmoveto{\pgfpoint{-0.4*\inverterwidth}{0.5*\inverterwidth}}
+\pgfpathlineto{\pgfpoint{-0.75*\inverterwidth}{0.5*\inverterwidth}}
+\pgfusepathqstroke
+
+
+\pgfpathmoveto{\pgfpoint{-0.25*\inverterwidth}{-0.625*\inverterwidth}}
+\pgfpathsine{\pgfpoint{0.25*\inverterwidth}{-0.125*\inverterwidth}}
+\pgfpathcosine{\pgfpoint{0.25*\inverterwidth}{0.125*\inverterwidth}}
+\pgfpathsine{\pgfpoint{0.25*\inverterwidth}{0.125*\inverterwidth}}
+\pgfpathcosine{\pgfpoint{0.25*\inverterwidth}{-0.125*\inverterwidth}}
+\pgfusepathqstroke
+}
+}
+%
+%
+%--------------------Transformer-----------------------
+%
+%
+\pgfdeclareshape{sltrafo}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{\singleline@trafoscale*(1.98*\elsize+(3*\elsize))}
+	\pgfmathsetlength\pgf@y{\singleline@trafoscale*3*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathcircle{\pgfpoint{(-0.66*3*\singleline@trafosize)}{0cm}}{3*\singleline@trafosize}
+\pgfpathcircle{\pgfpoint{(0.66*3*\singleline@trafosize)}{0cm}}{3*\singleline@trafosize}
+\pgfusepathqstroke
+\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/group draw}
+}
+}
+%
+%======================
+%
+\pgfdeclareshape{sltwocolortrafo}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{\singleline@trafoscale*(1.98*\elsize+(3*\elsize))}
+	\pgfmathsetlength\pgf@y{\singleline@trafoscale*3*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfsetstrokecolor{\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/second color}}
+\pgfpathcircle{\pgfpoint{(-0.66*3*\singleline@trafosize)}{0cm}}{3*\singleline@trafosize}
+\pgfusepathqstroke
+\pgfsetstrokecolor{\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/first color}}
+\pgfpathcircle{\pgfpoint{(0.66*3*\singleline@trafosize)}{0cm}}{3*\singleline@trafosize}
+\pgfusepathqstroke
+\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/group draw}
+}
+}
+%
+%=================
+%
+\pgfdeclareshape{sltrafotriangle}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{\singleline@trafoscale*\elsize}
+	\pgfmathsetlength\pgf@y{\singleline@trafoscale*0.866*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpoint{-\singleline@trafosize}{-0.866*\singleline@trafosize}}
+\pgfpathlineto{\pgfpoint{\singleline@trafosize}{-0.866*\singleline@trafosize}}
+\pgfpathlineto{\pgfpoint{0pt}{0.866*\singleline@trafosize}}
+\pgfpathclose
+\pgfusepathqstroke
+}
+}
+%
+%==============
+%
+\pgfdeclareshape{sltrafozigzag}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{1.04*\singleline@trafoscale*\elsize}
+	\pgfmathsetlength\pgf@y{0.9*\singleline@trafoscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+%
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathlineto{\pgfpoint{0pt}{0.6*\singleline@trafosize}}
+\pgfpathlineto{\pgfpoint{0.52*\singleline@trafosize}{0.9*\singleline@trafosize}}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathlineto{\pgfpoint{0.52*\singleline@trafosize}{-0.3*\singleline@trafosize}}
+\pgfpathlineto{\pgfpoint{0.52*\singleline@trafosize}{-0.9*\singleline@trafosize}}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathlineto{\pgfpoint{-0.52*\singleline@trafosize}{-0.3*\singleline@trafosize}}
+\pgfpathlineto{\pgfpoint{-1.04*\singleline@trafosize}{0pt}}
+\pgfusepathqstroke
+}
+}
+%
+%=============================
+%
+\pgfdeclareshape{sltrafostar}{
+\savedanchor{\upperrightcorner}{
+	\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{0.866*\singleline@trafoscale*\elsize}
+	\pgfmathsetlength\pgf@y{\singleline@trafoscale*1*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathlineto{\pgfpoint{0}{1*\singleline@trafosize}}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathlineto{\pgfpoint{0.866*\singleline@trafosize}{-0.5*\singleline@trafosize}}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathlineto{\pgfpoint{-0.866*\singleline@trafosize}{-0.5*\singleline@trafosize}}
+\pgfusepathqstroke
+}
+}
+%
+%==============
+%
+\pgfdeclareshape{slregtrafo}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{\singleline@trafoscale*(1.98*(\elsize)+(3*(\elsize)))}
+	\pgfmathsetlength\pgf@y{\singleline@trafoscale*3*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathcircle{\pgfpoint{-0.66*3*\singleline@trafosize}{0cm}}{3*\singleline@trafosize}
+\pgfpathcircle{\pgfpoint{0.66*3*\singleline@trafosize}{0cm}}{3*\singleline@trafosize}
+\pgfusepathqstroke
+\pgfsetarrowsstart{Stealth[inset=0pt,length=\singleline@trafosize, width=0.7*\singleline@trafosize]}
+\pgfpathmoveto{\pgfpoint{-2*\singleline@trafosize - 0.7*\singleline@trafosize}{4*\singleline@trafosize +0.7*\singleline@trafosize}}
+\pgfpathlineto{\pgfpoint{2*\singleline@trafosize}{-4*\singleline@trafosize}}
+\pgfusepath{stroke}
+\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/group draw}}
+}
+%
+%===============================
+%
+\pgfdeclareshape{slautotransformer}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{4.25*\singleline@trafoscale*(\elsize))}
+	\pgfmathsetlength\pgf@y{3*\singleline@trafoscale*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\singleline@trafosize{\elsize*\singleline@trafoscale}
+\pgfpathcircle{\pgfpoint{-1.25*\singleline@trafosize}{0pt}}{3*\singleline@trafosize}
+\pgfpathmoveto{\pgfpoint{-1.25*\singleline@trafosize}{-3*\singleline@trafosize}}
+\pgfpatharcto{5.5*\singleline@trafosize}{5*\singleline@trafosize}{0}{0}{1}{\pgfpoint{4.25*\singleline@trafosize}{0pt}}
+
+\pgfusepathqstroke
+}
+}
+%
+%========================
+%
+\pgfdeclareshape{slvoltagetransformer}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+	\pgfmathsetlength\pgf@x{0.5*1.98*\singleline@trafoscale*(\elsize)+(1.5*\singleline@trafoscale*(\elsize))}
+	\pgfmathsetlength\pgf@y{1.5*\singleline@trafoscale*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/trafo/scale}{\singleline@trafoscale}
+\def\trafosize{1.5*\elsize*\singleline@trafoscale}
+\pgfpathmoveto{\pgfpointorigin}
+\pgfpathcircle{\pgfpoint{-0.66*\trafosize}{0cm}}{\trafosize}
+\pgfpathcircle{\pgfpoint{0.66*\trafosize}{0cm}}{\trafosize}
+\pgfusepathqstroke
+}
+}
+%
+%
+%--------------SWITCH------------------
+%
+%
+\pgfdeclareshape{slswitch}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+	\pgfmathsetlength\pgf@x{\singleline@switchscale*2*\elsize)}
+	\pgfmathsetlength\pgf@y{\singleline@switchscale*1*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+\def\singleline@switchsize{\singleline@switchscale*\elsize}
+\pgfpathmoveto{\pgfpoint{2*\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-\singleline@switchsize}{\singleline@switchsize}}
+\pgfmoveto{\pgfpoint{-\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-2*\singleline@switchsize}{0pt}}
+\pgfusepathqstroke
+}
+}
+%
+%=======================
+%
+\pgfdeclareshape{sldisconswitch}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+\pgfmathsetlength\pgf@x{\singleline@switchscale*2*\elsize)}
+\pgfmathsetlength\pgf@y{\singleline@switchscale*1*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+\def\singleline@switchsize{\singleline@switchscale*\elsize}
+\pgfpathmoveto{\pgfpoint{2*\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-\singleline@switchsize}{\singleline@switchsize}}
+\pgfmoveto{\pgfpoint{-\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-2*\singleline@switchsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{-\singleline@switchsize}{0.5*\singleline@switchsize}}
+\pgflineto{\pgfpoint{-\singleline@switchsize}{-0.5*\singleline@switchsize}}
+\pgfusepathqstroke
+}
+}
+%
+%==========================
+%
+\pgfdeclareshape{slloadbreakswitch}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+\pgfmathsetlength\pgf@x{\singleline@switchscale*2*\elsize)}
+\pgfmathsetlength\pgf@y{\singleline@switchscale*1*(\elsize)}
+}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+\def\singleline@switchsize{\singleline@switchscale*\elsize}
+\pgfpathmoveto{\pgfpoint{2*\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-\singleline@switchsize}{\singleline@switchsize}}
+\pgfmoveto{\pgfpoint{-\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-2*\singleline@switchsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{-\singleline@switchsize}{0.5*\singleline@switchsize}}
+\pgflineto{\pgfpoint{-\singleline@switchsize}{-0.5*\singleline@switchsize}}
+\pgfpathcircle{\pgfpoint{-0.66*\singleline@switchsize}{0pt}}{0.33*\singleline@switchsize}
+\pgfusepathqstroke
+}
+}
+%
+%==================
+%
+\pgfdeclareshape{slcircbreaker}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+	\pgfmathsetlength\pgf@x{2*\singleline@switchscale*\elsize)}
+	\pgfmathsetlength\pgf@y{1*\singleline@switchscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/switch/scale}{\singleline@switchscale}
+\def\singleline@switchsize{\singleline@switchscale*\elsize}
+\pgfpathmoveto{\pgfpoint{2*\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-\singleline@switchsize}{\singleline@switchsize}}
+\pgfmoveto{\pgfpoint{-\singleline@switchsize}{0pt}}
+\pgflineto{\pgfpoint{-2*\singleline@switchsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{-\singleline@switchsize + 0.33*\singleline@switchsize}{0.33*\singleline@switchsize}}
+\pgflineto{\pgfpoint{-\singleline@switchsize -0.33*\singleline@switchsize}{-0.33*\singleline@switchsize}}
+\pgfpathmoveto{\pgfpoint{-\singleline@switchsize + 0.33*\singleline@switchsize}{-0.33*\singleline@switchsize}}
+\pgflineto{\pgfpoint{-\singleline@switchsize -0.33*\singleline@switchsize}{0.33*\singleline@switchsize}}
+\pgfusepathqstroke
+}
+}
+%
+%
+%--------------Reactor-------------------
+%
+%
+\pgfdeclareshape{slreactor}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/reactor/scale}{\singleline@reactorscale}
+	\pgfmathsetlength\pgf@x{\singleline@reactorscale*3*(\elsize))}
+	\pgfmathsetlength\pgf@y{\singleline@reactorscale*3*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/reactor/scale}{\singleline@reactorscale}
+\def\singleline@reactorsize{\singleline@reactorscale*\elsize}
+\pgfpathmoveto{\pgfpoint{-3*\singleline@reactorsize}{0pt}}
+\pgfpatharc{180}{450}{3*\singleline@reactorsize}
+\pgfpathlineto{\pgforigin}
+\pgfpathlineto{\pgfpoint{3*\singleline@reactorsize}{0pt}}
+\pgfusepathqstroke
+}
+}
+%
+%=============
+%
+\pgfdeclareshape{slregreactor}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/reactor/scale}{\singleline@reactorscale}
+	\pgfmathsetlength\pgf@x{3*\singleline@reactorscale*(\elsize))}
+	\pgfmathsetlength\pgf@y{3*\singleline@reactorscale*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/reactor/scale}{\singleline@reactorscale}
+\def\singleline@reactorsize{\singleline@reactorscale*\elsize}
+\pgfpathmoveto{\pgfpoint{-3*\singleline@reactorsize}{0pt}}
+\pgfpatharc{180}{450}{3*\singleline@reactorsize}
+\pgfpathlineto{\pgforigin}
+\pgfpathlineto{\pgfpoint{3*\singleline@reactorsize}{0pt}}
+\pgfusepathqstroke
+\pgfsetarrowsstart{Stealth[inset=0pt,length=\singleline@reactorsize, width=0.7*\singleline@reactorsize]}
+\pgfpathmoveto{\pgfpoint{-3*\singleline@reactorsize + 0.0*\singleline@reactorsize}{3*\singleline@reactorsize - 0.0*\singleline@reactorsize}}
+\pgfpathlineto{\pgfpoint{3*\singleline@reactorsize}{-3*\singleline@reactorsize}}
+\pgfusepath{stroke}
+}
+}
+%
+%
+%
+%------------------------CAPACITOR---------------------
+%
+%
+\pgfdeclareshape{slcapacitor}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/capacitor/scale}{\singleline@capacitorscale}
+	\pgfmathsetlength\pgf@x{0.5*\singleline@capacitorscale*\elsize}
+	\pgfmathsetlength\pgf@y{2.5*\singleline@capacitorscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/capacitor/scale}{\singleline@capacitorscale}
+\def\singleline@capacitorsize{\elsize*\singleline@capacitorscale}
+%\pgfpathmoveto{\pgfpoint{-2.5*\singleline@capacitorsize}{0pt}}
+%\pgflineto{\pgfpoint{-0.5*\singleline@capacitorsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{-0.5*\singleline@capacitorsize}{2.5*\singleline@capacitorsize}}
+\pgfpathlineto{\pgfpoint{-0.5*\singleline@capacitorsize}{-2.5*\singleline@capacitorsize}}
+\pgfpathmoveto{\pgfpoint{0.5*\singleline@capacitorsize}{2.5*\singleline@capacitorsize}}
+\pgflineto{\pgfpoint{0.5*\singleline@capacitorsize}{-2.5*\singleline@capacitorsize}}
+%\pgfpathmoveto{\pgfpoint{0.5*\singleline@capacitorsize}{0pt}}
+%\pgflineto{\pgfpoint{2.5*\singleline@capacitorsize}{0pt}}
+\pgfusepathqstroke
+}
+}
+%
+%=======================
+%
+\pgfdeclareshape{slregcapacitor}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/capacitor/scale}{\singleline@capacitorscale}
+	\pgfmathsetlength\pgf@x{2*\singleline@capacitorscale*\elsize}
+	\pgfmathsetlength\pgf@y{2.5*\singleline@capacitorscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/capacitor/scale}{\singleline@capacitorscale}
+\def\singleline@capacitorsize{\elsize*\singleline@capacitorscale}
+\pgfpathmoveto{\pgfpoint{-2.5*\singleline@capacitorsize}{0pt}}
+\pgflineto{\pgfpoint{-0.5*\singleline@capacitorsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{-0.5*\singleline@capacitorsize}{2.5*\singleline@capacitorsize}}
+\pgfpathlineto{\pgfpoint{-0.5*\singleline@capacitorsize}{-2.5*\singleline@capacitorsize}}
+\pgfpathmoveto{\pgfpoint{0.5*\singleline@capacitorsize}{2.5*\singleline@capacitorsize}}
+\pgflineto{\pgfpoint{0.5*\singleline@capacitorsize}{-2.5*\singleline@capacitorsize}}
+\pgfpathmoveto{\pgfpoint{0.5*\singleline@capacitorsize}{0pt}}
+\pgflineto{\pgfpoint{2.5*\singleline@capacitorsize}{0pt}}
+\pgfusepathqstroke
+
+\pgfsetarrowsstart{Stealth[inset=0pt,length=\singleline@capacitorsize, width=0.7*\singleline@capacitorsize]}
+\pgfpathmoveto{\pgfpoint{-2*\singleline@capacitorsize - 0.7*\singleline@capacitorsize}{2*\singleline@capacitorsize +0.7*\singleline@capacitorsize}}
+\pgfpathlineto{\pgfpoint{2*\singleline@capacitorsize}{-2*\singleline@capacitorsize}}
+\pgfusepath{stroke}
+
+}
+}
+%
+%
+%-------------------------Resistor------------------------
+%
+%
+\pgfdeclareshape{slresistor}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/resistor/scale}{\singleline@resistorscale}
+	\pgfmathsetlength\pgf@x{1.5*\singleline@resistorscale*\elsize}
+	\pgfmathsetlength\pgf@y{0.5*\singleline@resistorscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/resistor/scale}{\singleline@resistorscale}
+\def\singleline@resistorsize{\elsize*\singleline@resistorscale}
+\pgfpathrectanglecorners{\pgfpoint{-1.5*\singleline@resistorsize}{-0.5*\singleline@resistorsize}}{\pgfpoint{1.5*\singleline@resistorsize}{0.5*\singleline@resistorsize}}
+\pgfusepathqstroke
+}}
+%
+%================================
+%
+\pgfdeclareshape{slregresistor}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/resistor/scale}{\singleline@resistorscale}
+	\pgfmathsetlength\pgf@x{1.5*\singleline@resistorscale*\elsize}
+	\pgfmathsetlength\pgf@y{0.5*\singleline@resistorscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/resistor/scale}{\singleline@resistorscale}
+\def\singleline@resistorsize{\elsize*\singleline@resistorscale}
+\pgfpathrectanglecorners{\pgfpoint{-1.5*\singleline@resistorsize}{-0.5*\singleline@resistorsize}}{\pgfpoint{1.5*\singleline@resistorsize}{0.5*\singleline@resistorsize}}
+\pgfusepathqstroke
+
+\pgfsetarrowsstart{Stealth[inset=0pt,length=0.8*\singleline@resistorsize, width=0.56*\singleline@resistorsize]}
+\pgfpathmoveto{\pgfpoint{-0.9*\singleline@resistorsize - 0.56*\singleline@resistorsize }{0.9*\singleline@resistorsize + 0.56*\singleline@resistorsize }}
+\pgfpathlineto{\pgfpoint{1*\singleline@resistorsize}{-1*\singleline@resistorsize}}
+\pgfusepath{stroke}
+}}
+%
+%=====================
+%
+\pgfdeclareshape{slimpedance}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/inductance/scale}{\singleline@resistorscale}
+	\pgfmathsetlength\pgf@x{1.5*\singleline@resistorscale*\elsize}
+	\pgfmathsetlength\pgf@y{0.5*\singleline@resistorscale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\savedanchor{\textanchor}{%
+     \pgf@y=-0.5\ht\pgfnodeparttextbox
+     \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+\anchor{text}{
+\textanchor
+}
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/inductance/scale}{\singleline@inductancescale}
+\def\singleline@inductancesize{\elsize*\singleline@inductancescale}
+\pgfpathrectanglecorners{\pgfpoint{-1.5*\singleline@inductancesize}{-0.5*\singleline@inductancesize}}{\pgfpoint{1.5*\singleline@inductancesize}{0.5*\singleline@inductancesize}}
+\pgfusepath{fill,stroke}
+}}
+%
+%
+%-------------------INDUCTANCE-----------------------
+%
+%
+\pgfdeclareshape{slinductance}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/inductance/scale}{\singleline@inductancescale}
+	\pgfmathsetlength\pgf@x{2*\singleline@inductancescale*\elsize}
+	\pgfmathsetlength\pgf@y{0.5*\singleline@inductancescale*\elsize}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/inductance/scale}{\singleline@inductancescale}
+\def\singleline@inductancesize{\elsize*\singleline@inductancescale}
+\pgfpathmoveto{\pgfpoint{2*\singleline@inductancesize}{0pt}}
+\pgfpatharc{0}{180}{0.5*\singleline@inductancesize}
+\pgfpatharc{0}{180}{0.5*\singleline@inductancesize}
+\pgfpatharc{0}{180}{0.5*\singleline@inductancesize}
+\pgfpatharc{0}{180}{0.5*\singleline@inductancesize}
+\pgfusepathqstroke
+}
+}
+%
+%
+%------------------LINETP---------------------------
+%
+%
+\pgfdeclareshape{sllinetp}{
+\savedanchor{\upperrightcorner}{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/linetp/scale}{\singleline@linetpscale}
+	\pgfmathsetlength\pgf@x{1.5*\singleline@linetpscale*(\elsize))}
+	\pgfmathsetlength\pgf@y{1*\singleline@linetpscale*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfkeysgetvalue{/tikz/singleline/bipoles/linetp/scale}{\singleline@linetpscale}
+\def\singleline@linetpsize{\elsize*\singleline@linetpscale}
+\pgfpathmoveto{\pgfpoint{-1.5*\singleline@linetpsize}{0pt}}
+\pgfpathlineto{\pgfpoint{1.5*\singleline@linetpsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{-0.5*\singleline@linetpsize}{\singleline@linetpsize}}
+\pgfpathlineto{\pgfpoint{0.5*\singleline@linetpsize}{-\singleline@linetpsize}}
+\pgfpathmoveto{\pgfpoint{-\singleline@linetpsize}{\singleline@linetpsize}}
+\pgfpathlineto{\pgfpoint{0pt}{-\singleline@linetpsize}}
+\pgfpathmoveto{\pgfpoint{0pt}{\singleline@linetpsize}}
+\pgfpathlineto{\pgfpoint{\singleline@linetpsize}{-\singleline@linetpsize}}
+\pgfusepath{stroke}
+}
+}
+% 
+%
+%
+%===================STADALONES=========================
+%
+%
+\pgfdeclareshape{currenttransformer}{
+\savedanchor{\upperrightcorner}{
+	\pgfmathsetlength\pgf@x{4*(\elsize))}
+	\pgfmathsetlength\pgf@y{1*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfpathcircle{\pgforigin}{\elsize}
+\pgfpathmoveto{\pgfpoint{\elsize}{0pt}}
+\pgfpathlineto{\pgfpoint{4*\elsize}{0pt}}
+\pgfpathmoveto{\pgfpoint{2*\elsize}{-\elsize}}
+\pgfpathlineto{\pgfpoint{3*\elsize}{\elsize}}
+\pgfpathmoveto{\pgfpoint{2.5*\elsize}{-\elsize}}
+\pgfpathlineto{\pgfpoint{3.5*\elsize}{\elsize}}
+\pgfusepath{stroke}
+}
+}
+%
+%========================
+%
+\pgfdeclareshape{fault}{
+\savedanchor{\upperrightcorner}{
+	\pgfmathsetlength\pgf@x{3.5*(\elsize))}
+	\pgfmathsetlength\pgf@y{3*(\elsize)}
+	}
+\savedanchor{\lowerleftcorner}{
+	\pgf@x= -\pgf@x
+	\pgf@y= -\pgf@y}
+\anchor{north east}{\upperrightcorner}
+\anchor{north west}{
+	\upperrightcorner
+	\pgf@x=-\pgf@x}
+\anchor{north}{
+	\upperrightcorner
+	\pgf@x= 0pt}
+\anchor{east}{
+	\upperrightcorner
+	\pgf@y= 0pt}
+\anchor{south east}{
+	\upperrightcorner
+	\pgf@y=-\pgf@y}
+\anchor{south}{
+	\lowerleftcorner
+	\pgf@x= 0pt}
+\anchor{west}{
+	\lowerleftcorner
+	\pgf@y= 0pt}
+\anchor{center}{\pgfpointorigin}
+
+\anchorborder{%
+\@tempdima=\pgf@x
+\@tempdimb=\pgf@y
+\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+}
+
+\backgroundpath{
+\pgfpathmoveto{\pgfpoint{0pt}{1.5*\elsize}}
+\pgfpathlineto{\pgfpoint{-0.5*\elsize}{-0.5*\elsize}}
+\pgfpathlineto{\pgfpoint{0.5*\elsize}{0.5*\elsize}}
+\pgfsetarrowsstart{Stealth[inset=0pt,length=0.8*\elsize, width=0.56*\elsize]}
+\pgfpathmoveto{\pgfpoint{0pt-0.28*\elsize }{-1.5*\elsize -0.56*\elsize}}
+\pgfpathlineto{\pgfpoint{0.5*\elsize}{0.5*\elsize}}
+\pgfusepath{stroke}
+}
+}
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%======================================================================================================
+%PGFKEYS
+%======================================================================================================
+%Monopoles:
+%
+%--------------------Pv----------------------
+%
+\pgfkeysdefargs{/tikz/singleline/monopoles/pv/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/monopoles/pv/leftconnector=#1}
+	\pgfkeys{/tikz/singleline/monopoles/pv/rightconnector=#2}}
+\pgfkeys{/tikz/singleline/monopoles/pv/.cd,
+nodetext/.initial={},
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+shape/.initial={slpv},
+mode/.initial={},
+scale/.initial={1},}
+%
+%-----------------Ground-------------------
+%
+\pgfkeysdefargs{/tikz/singleline/monopoles/ground/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/monopoles/ground/leftconnector=#1}
+	\pgfkeys{/tikz/singleline/monopoles/ground/rightconnector=#2}}
+\pgfkeys{/tikz/singleline/monopoles/ground/.cd,
+nodetext/.initial={},
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+shape/.initial={slground},
+mode/.initial={},
+scale/.initial={1},
+}
+%
+%-------------------Grid-----------------
+%
+\pgfkeysdefargs{/tikz/singleline/monopoles/grid/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/monopoles/grid/leftconnector=#1}
+	\pgfkeys{/tikz/singleline/monopoles/grid/rightconnector=#2}}
+\pgfkeys{/tikz/singleline/monopoles/grid/.cd,
+nodetext/.initial={},
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+shape/.initial={slgrid},
+mode/.initial={},
+scale/.initial={1},
+}
+%
+%------------------Load--------------------
+%
+\pgfkeysdefargs{/tikz/singleline/monopoles/load/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/monopoles/load/leftconnector=#1}
+	\pgfkeys{/tikz/singleline/monopoles/load/rightconnector=#2}}
+\pgfkeys{/tikz/singleline/monopoles/load/.cd,
+nodetext/.initial={},
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+shape/.initial={slload},
+mode/.is choice,
+mode/small/.code ={\pgfkeys{/tikz/singleline/monopoles/load/shape=slsmallload}},
+scale/.initial={1},
+}
+%
+%----------------Machine------------------
+%
+\pgfkeysdefargs{/tikz/singleline/monopoles/machine/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/monopoles/machine/leftconnector=#1}
+	\pgfkeys{/tikz/singleline/monopoles/machine/rightconnector=#2}}
+\pgfkeys{/tikz/singleline/monopoles/machine/.cd,
+leftconnector/.initial={},
+rightconnector/.initial={},
+line width/.initial={\singleline@linewidth},
+label/.initial={},
+nodetext/.initial={},
+color/.initial={},
+shape/.initial={slcircle},
+text/.initial={},
+scale/.initial={1},
+mode/.is choice,
+mode/G/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text=\textsf{G}}},
+mode/GS/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text=\textsf{GS}}},
+mode/C/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text=\textsf{C}}},
+mode/M/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text=\textsf{M}}},
+mode/MG/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text=\textsf{MG}}},
+mode/MS/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text=\textsf{MS}}},
+mode/GNEA/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text={\textsf {G} \\[-10/\elsize-1mm] \textsf{\tiny{NEA}}}}},
+mode/tilde/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text={\tikz \pic at (0,0){gentilde};}}},
+mode/empty/.code={\pgfkeys{/tikz/singleline/monopoles/machine/text={}}},
+}
+%
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\singleline@monopoles#1{
+\pgfkeys{/tikz/singleline/monopoles/#1/nodetext/.get=\singleline@nodetext}
+\pgfkeys{/tikz/singleline/monopoles/#1/color/.get=\singleline@color}
+\pgfkeys{/tikz/singleline/monopoles/#1/label/.get=\singleline@label}
+\pgfkeys{/tikz/singleline/monopoles/#1/leftconnector/.get=\singleline@leftconnector}
+\pgfkeys{/tikz/singleline/monopoles/#1/rightconnector/.get=\singleline@rightconnector}
+\pgfkeys{/tikz/singleline/monopoles/#1/shape/.get=\singleline@monopoleshape}%
+}
+%
+%=================================================================
+%Bipoles:
+%
+%-------------------Trafo------------------------------
+%
+\pgfkeysdefargs{/tikz/singleline/bipoles/trafo/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/trafo/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/trafo/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,
+color/.initial={.},
+first color/.initial={.},
+second color/.initial={.},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={sltrafo},
+scale/.initial={1},
+debug/.initial={false},
+mirror/.initial={false},
+two colored/.code={\pgfkeys{/tikz/singleline/bipoles/trafo/draw two colored=true}},
+mode/.is choice,
+mode/reg/.code={\pgfkeys{/tikz/singleline/bipoles/trafo/shape=slregtrafo}},
+mode/voltage transformer/.code={\pgfkeys{/tikz/singleline/bipoles/trafo/shape=slvoltagetransformer}},
+mode/auto transformer/.code={\pgfkeys{/tikz/singleline/bipoles/trafo/shape=slautotransformer}},}
+
+\newif\iftwocolored\twocoloredfalse
+\pgfkeys{/tikz/singleline/bipoles/trafo/draw two colored/.is if=twocolored}
+%
+%-------------Tranformer vector groups-------------------
+%
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,
+group draw/.initial={},
+group/.is choice,
+group/dx/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafotriangle] at (sltrafo-sgroupfrom){};
+}}},%
+group/xd/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafotriangle ] at (sltrafo-sgroupto){};}}},%
+group/dd/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={
+\node[draw, sltrafotriangle] at (sltrafo-sgroupfrom){};
+\node[draw, sltrafotriangle] at (sltrafo-sgroupto){};
+}}},%
+group/xx/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={}}},
+group/xs/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafostar ] at (sltrafo-sgroupto){};}}
+},%
+group/ds/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafotriangle] at (sltrafo-sgroupfrom){};
+\node[draw, sltrafostar] at (sltrafo-sgroupto){};}}
+},%
+group/sx/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafostar] at (sltrafo-sgroupfrom){};}}
+},
+group/sd/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafotriangle] at (sltrafo-sgroupto){};
+\node[draw, sltrafostar] at (sltrafo-sgroupfrom){};}}
+},%
+group/ss/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafostar] at (sltrafo-sgroupfrom){};
+\node[draw, sltrafostar] at (sltrafo-sgroupto){};}}
+},%
+group/xz/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafozigzag] at (sltrafo-sgroupto){};
+}}},%
+group/sz/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafostar] at (sltrafo-sgroupfrom){};
+\node[draw, sltrafozigzag] at (sltrafo-sgroupto){};}}
+},%
+group/dz/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafotriangle] at (sltrafo-sgroupfrom){};
+\node[draw, sltrafozigzag] at (sltrafo-sgroupto){};}}
+},%
+group/zx/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafozigzag] at (sltrafo-sgroupfrom){};
+}}},%
+group/zs/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafostar] at (sltrafo-sgroupto){};
+\node[draw, sltrafozigzag] at (sltrafo-sgroupfrom){};}}
+},
+group/zd/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafotriangle] at (sltrafo-sgroupto){};
+\node[draw, sltrafozigzag] at (sltrafo-sgroupfrom){};}}
+},%
+group/zz/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/group draw={%
+\node[draw, sltrafozigzag] at (sltrafo-sgroupto){};
+\node[draw, sltrafozigzag] at (sltrafo-sgroupfrom){};}}
+},%
+}
+%
+%-------------Trafo Neutral Point Earthing-------------------
+%
+%
+\tikzset{npe-sRL/.pic={
+\draw (0,0)--(0,-5*\elsize);
+\draw (-1.25*\elsize,-5*\elsize)--(1.25*\elsize,-5*\elsize);
+\inductance[scale=0.7](1.25*\elsize,-5*\elsize)(1.25*\elsize,-11*\elsize);
+\resistor[scale=0.7](-1.25*\elsize,-5*\elsize)(-1.25*\elsize,-8*\elsize);
+\switch[scale=0.5](-1.25*\elsize,-11*\elsize)(-1.25*\elsize,-8*\elsize);
+\draw(-1.25*\elsize,-11*\elsize)--(1.25*\elsize,-11*\elsize);
+\ground[scale=0.5](0,-11*\elsize)(0,-14*\elsize);
+}}
+%
+\tikzset{npe-RL/.pic={
+\draw (0,0)--(0,-5*\elsize);
+\draw (-1.25*\elsize,-5*\elsize)--(1.25*\elsize,-5*\elsize);
+\inductance[scale=0.7](1.25*\elsize,-5*\elsize)(1.25*\elsize,-11*\elsize);
+\resistor[scale=0.7](-1.25*\elsize,-5*\elsize)(-1.25*\elsize,-11*\elsize);
+\draw(-1.25*\elsize,-11*\elsize)--(1.25*\elsize,-11*\elsize);
+\ground[scale=0.5](0,-11*\elsize)(0,-14*\elsize);
+}}
+%
+\tikzset{npe-L/.pic={
+\draw(0,0)--(0,-5*\elsize);
+\inductance[scale=0.7](0,-5*\elsize)(0,-7*\elsize);
+\ground[scale=0.5](0,-7*\elsize)(0,-10*\elsize);}}
+%
+\tikzset{npe-R/.pic={
+\draw(0,0)--(0,-5*\elsize);
+\resistor[scale=0.7](0,-5*\elsize)(0,-7*\elsize);
+\ground[scale=0.5](0,-7*\elsize)(0,-10*\elsize);}}
+%
+%
+%
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,
+npe draw first/.initial={},
+npe first/.is choice,
+npe first/x/.code={},
+npe first/L/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw first={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupfrom){npe-L};
+}}
+},%
+npe first/R/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw first={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupfrom){npe-R};
+}}},
+npe first/RL/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw first={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupfrom){npe-RL};
+}}},
+npe first/sRL/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw first={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupfrom){npe-sRL};
+}}},
+npe first/S/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw first={
+\ground[scale=0.5*\singleline@trafoscale](sltrafo-sgroupfrom)($(sltrafo-sgroupfrom)-(0,6*\elsize*\singleline@trafoscale)$);}}},
+npe first/o/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw first={
+\draw[-cxx] (sltrafo-sgroupfrom) -- ($(sltrafo-sgroupfrom)-(0,5*\elsize*\singleline@trafoscale)$);
+\ground[scale=0.5*\singleline@trafoscale, connector=cxx-]($(sltrafo-sgroupfrom)-(0,7*\elsize*\singleline@trafoscale)$)($(sltrafo-sgroupfrom)-(0,10*\elsize*\singleline@trafoscale)$);}},
+},
+%----------------------------------------
+npe draw second/.initial={},
+npe second/.is choice,
+npe second/x/.code={},
+npe second/L/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw second={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupto){npe-L};
+}}
+},%
+npe second/R/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw second={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupto){npe-R};
+}}},
+npe second/RL/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw second={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupto){npe-RL};
+}}},
+npe second/sRL/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw second={
+\pic[transform shape, scale=\singleline@trafoscale] at (sltrafo-sgroupto){npe-sRL};
+}}},
+npe second/S/.code={%
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw second={
+\ground[scale=0.5*\singleline@trafoscale](sltrafo-sgroupto)($(sltrafo-sgroupto)-(0,6*\elsize*\singleline@trafoscale)$);}}},
+npe second/o/.code={
+\pgfkeys{/tikz/singleline/bipoles/trafo/npe draw second={
+\draw[-cxx] (sltrafo-sgroupto) -- ($(sltrafo-sgroupto)-(0,5*\elsize*\singleline@trafoscale)$);
+\ground[scale=0.5*\singleline@trafoscale, connector=cxx-]($(sltrafo-sgroupto)-(0,7*\elsize*\singleline@trafoscale)$)($(sltrafo-sgroupto)-(0,10*\elsize*\singleline@trafoscale)$);}},
+},}
+%
+%-----------------Capacitor-----------------------
+%
+\pgfkeysdefargs{/tikz/singleline/bipoles/capacitor/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/capacitor/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/capacitor/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/capacitor/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={slcapacitor},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+mode/reg/.code={\pgfkeys{/tikz/singleline/bipoles/capacitor/shape=slregcapacitor}},
+}
+%
+%--------------Inverter-------------------------------
+%
+\pgfkeysdefargs{/tikz/singleline/bipoles/inverter/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/inverter/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/inverter/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/inverter/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={slacdc},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+mode/dcdc/.code={\pgfkeys{/tikz/singleline/bipoles/inverter/shape=sldcdc}},
+mode/dcac/.code={\pgfkeys{/tikz/singleline/bipoles/inverter/shape=sldcac}},
+}
+%
+%----------------Inductance-------------------------
+%
+\pgfkeysdefargs{/tikz/singleline/bipoles/inductance/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/inductance/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/inductance/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/inductance/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={slimpedance},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+mode/coil/.code={\pgfkeys{/tikz/singleline/bipoles/inductance/shape=slinductance}},
+}
+%
+%----------------Linetp---------------------------
+%
+\pgfkeysdefargs{/tikz/singleline/bipoles/linetp/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/linetp/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/linetp/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/linetp/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={sllinetp},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+}
+%
+%----------------Resistor-------------------------
+\pgfkeysdefargs{/tikz/singleline/bipoles/resistor/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/resistor/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/resistor/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/resistor/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={slresistor},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+mode/reg/.code={\pgfkeys{/tikz/singleline/bipoles/resistor/shape=slregresistor}},
+}
+%
+%----------------Switch-------------------------------------------
+\pgfkeysdefargs{/tikz/singleline/bipoles/switch/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/switch/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/switch/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/switch/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={slswitch},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+mode/disconnect/.code={\pgfkeys{/tikz/singleline/bipoles/switch/shape=sldisconswitch}},
+mode/load-break/.code={\pgfkeys{/tikz/singleline/bipoles/switch/shape=slloadbreakswitch}},
+mode/circuit breaker/.code={\pgfkeys{/tikz/singleline/bipoles/switch/shape=slcircbreaker}},
+}
+%
+%-----------------Reactor---------------------------
+%
+\pgfkeysdefargs{/tikz/singleline/bipoles/reactor/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/bipoles/reactor/leftconnector=#1-}
+	\pgfkeys{/tikz/singleline/bipoles/reactor/rightconnector=-#2}}
+\pgfkeys{/tikz/singleline/bipoles/reactor/.cd,
+color/.initial={},
+label/.initial={},
+line width/.initial={\singleline@linewidth},
+leftconnector/.initial={},
+rightconnector/.initial={},
+connector/.initial={ - },
+shape/.initial={slreactor},
+scale/.initial={1},
+mirror/.initial={false},
+mode/.is choice,
+mode/reg/.code={\pgfkeys{/tikz/singleline/bipoles/reactor/shape=slregreactor}},
+}
+%
+%
+%======================================================
+\def\pgf@singleline@bipolekeys#1{
+	\pgfkeys{/tikz/singleline/bipoles/#1/nodetext/.get=\singleline@nodetext}
+	\pgfkeys{/tikz/singleline/bipoles/#1/leftconnector/.get=\singleline@leftconnector}
+	\pgfkeys{/tikz/singleline/bipoles/#1/rightconnector/.get=\singleline@rightconnector}
+	\pgfkeys{/tikz/singleline/bipoles/#1/color/.get=\singleline@color}
+	\pgfkeys{/tikz/singleline/bipoles/#1/label/.get=\singleline@label}
+	\pgfkeys{/tikz/singleline/bipoles/#1/shape/.get=\singleline@bipoleshape}
+	\pgfkeys{/tikz/singleline/bipoles/#1/mirror/.get=\singleline@mirrorlogic}
+
+	\tikzset{every path/.style={line width={\pgfkeysvalueof{/tikz/singleline/bipoles/#1/line width}}}}
+}
+%=====================================================
+%--------------------Busbar-------------------------------
+\pgfkeys{/tikz/singleline/busbar/busbar line width/.initial=0.3*\elsize}
+\pgfkeys{/tikz/singleline/busbar/label/.initial={}}
+\pgfkeys{/tikz/singleline/busbar/color/.initial={}}
+\pgfkeys{/tikz/singleline/busbar/leftconnector/.initial={}}
+\pgfkeys{/tikz/singleline/busbar/leftconnector/.default={}}
+\pgfkeys{/tikz/singleline/busbar/rightconnector/.initial={}}
+\pgfkeys{/tikz/singleline/busbar/rightconnector/.default={}}
+\pgfkeysdefargs{/tikz/singleline/busbar/connector}{#1-#2}{
+	\pgfkeys{/tikz/singleline/busbar/leftconnector=#1}
+	\pgfkeys{/tikz/singleline/busbar/rightconnector=#2}}
+\pgfkeys{/tikz/singleline/busbar/connector/.initial={ - }}
+%
+%======================================================================================================
+%COMMANDS: FRAMEWORK FOR THE CREATION OF SIMPLE DRAWING COMMANDS
+%\SinglelineDefineMonopoleCommands      -> Create single ended drawing commands
+%\SinglelineDefineMonopoleCommands      -> Create double ended drawing commands
+%\singlelinemgnoderotation              -> Text rotation for motor and generator
+%\singleline@noderotation                -> Alingment of nodes with lines
+%======================================================================================================
+%
+\NewDocumentCommand{\SinglelineDefineMonopoleCommands}{O{}mmm}{
+\begingroup
+\pgfkeys{/tikz/singleline/monopoles/#2/.cd , #1}
+%
+\singleline@monopoles{#2}
+\singleline@noderotation{#2}{#3}{#4}
+%
+%
+\tikzset{every path/.style={line width={\pgfkeysvalueof{/tikz/singleline/monopoles/#2/line width}}}}
+\node[\singleline@monopoleshape, draw, rotate=\nodeangle, \singleline@color , label=\singleline@label] (#2-monopole) at (#4){\singleline@nodetext};
+%
+%
+\draw[ \singleline@leftconnector-\singleline@rightconnector,\singleline@color](#3)--(#2-monopole);
+%
+\endgroup
+}
+
+%%%%%
+%%%%%
+\NewDocumentCommand{\SinglelineDefineBipoleCommands}{O{}mmm}{
+\begingroup
+%
+%
+\pgfkeys{/tikz/singleline/bipoles/#2/.cd , #1}
+\pgf@singleline@bipolekeys{#2}
+\singleline@noderotation{#2}{#3}{#4}
+%
+\newif\ifmirror
+\pgfkeys{tikz/singleline/bipoles/#2/mirror/.is if=mirror}
+\pgfkeys{tikz/singleline/bipoles/#2/mirror=\singleline@mirrorlogic}
+\ifmirror
+\def\singleline@mirror{1}
+\else
+\def\singleline@mirror{-1}
+\fi
+%
+%
+\node[\singleline@bipoleshape, draw, rotate=\nodeangle, \singleline@color, label=\singleline@label, xscale=\singleline@mirror](#2-element) at ($(#3) ! .5 ! (#4)$){\singleline@nodetext
+};
+\draw[\singleline@leftconnector, \singleline@color](#3)--(#2-element);
+\draw[\singleline@rightconnector, \singleline@color](#2-element)--(#4);
+\endgroup
+%
+}
+%%%%%
+\NewDocumentCommand{\trafo}{O{}r()r()}
+{
+\begingroup
+%
+%
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,#1}
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,%
+leftconnector/.get=\singleline@leftconnector,%
+rightconnector/.get=\singleline@rightconnector,%
+color/.get=\singleline@color,
+label/.get=\singleline@label,
+scale/.get=\singleline@trafoscale,
+shape/.get=\singleline@bipoleshape,
+mirror/.get=\singleline@mirrorlogic,}
+%
+%
+%
+%
+\singleline@noderotation{sltrafo}{#2}{#3}
+\coordinate (sltrafo-element) at ($(#2) ! .5 ! (#3)$);
+\coordinate (sltrafo-sgroupfrom) at ($(node cs:name=sltrafo-element,anchor=center)+(\nodeangle:-2.5*\elsize*\singleline@trafoscale)$);
+\coordinate (sltrafo-sgroupto) at ($(node cs:name=sltrafo-element,anchor=center)+(\nodeangle+180:-2.5*\elsize*\singleline@trafoscale)$);
+%
+\newif\ifmirror
+\pgfkeys{tikz/singleline/bipoles/trafo/mirror/.is if=mirror}
+\pgfkeys{tikz/singleline/bipoles/trafo/mirror=\singleline@mirrorlogic}
+\ifmirror
+\def\singleline@mirror{1}
+\else
+\def\singleline@mirror{-1}
+\fi
+%
+%
+\iftwocolored
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,
+first color/.get=\singleline@firstcolor,
+second color/.get=\singleline@secondcolor,}
+\node[sltwocolortrafo, draw,rotate=\nodeangle, label=\singleline@label, xscale=\singleline@mirror](sltrafo-element) at ($(#2) ! .5 ! (#3)$){};
+%
+\draw[\singleline@leftconnector, color=\singleline@firstcolor](#2)--(sltrafo-element);
+\draw[\singleline@rightconnector, color=\singleline@secondcolor](sltrafo-element)--(#3);
+%
+\else
+\tikzset{every path/.style={line width={\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/line width}}, color=\singleline@color}}
+%
+\node[\singleline@bipoleshape, draw,rotate=\nodeangle, label=\singleline@label, xscale=\singleline@mirror](sltrafo-element) at ($(#2) ! .5 ! (#3)$){};
+\draw[\singleline@leftconnector](#2)--(sltrafo-element);
+\draw[\singleline@rightconnector](sltrafo-element)--(#3);
+%
+%
+\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/group draw}
+%
+\fi
+%
+\newif\ifdebug
+\pgfkeys{tikz/singleline/bipoles/trafo/debug/.is if=debug}
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,#1}
+\ifdebug
+\draw let \p1 =(sltrafo-sgroupfrom) in ($(\x1,\y1)+(0.5,0.5)$) node {\tiny{\x1,\y1}};
+\draw  let \p2 = (sltrafo-sgroupto) in
+($(\x2,\y2)-(0.5,0.5)$) node {\tiny{\x2,\y2}};
+\else
+\fi
+%
+\endgroup
+\begingroup
+%
+\pgfkeys{/tikz/singleline/bipoles/trafo/.cd,#1}
+\pgfkeys{/tikz/singleline/bipoles/trafo/scale/.get=\singleline@trafoscale}
+%
+\singleline@noderotation{sltrafo}{#2}{#3}
+\begin{scope}[rotate=\nodeangle, transform shape]
+\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/npe draw first}
+\pgfkeysvalueof{/tikz/singleline/bipoles/trafo/npe draw second}
+\end{scope}
+\endgroup
+%
+%
+}
+%%%%%
+\NewDocumentCommand{\SinglelineDefineMachine}{O{}mmm}{
+\begingroup
+\pgfkeys{/tikz/singleline/monopoles/machine/.cd , #1}
+\singleline@machinenoderotation{#2}{#3}{#4}
+%
+%
+\pgfkeys{/tikz/singleline/monopoles/#2/text/.get=\singleline@nodemodus}
+%
+\singleline@monopoles{#2}
+\tikzset{every path/.style={line width={\pgfkeysvalueof{/tikz/singleline/monopoles/#2/line width}}}}
+%
+\node[slcircle, draw, rotate=\nodeangle, \singleline@color , label=\singleline@label, align=center] (#2-monopole) at (#4){\singleline@nodemodus };
+%
+%
+\draw[ \singleline@leftconnector-\singleline@rightconnector,\singleline@color](#3)--(#2-monopole);
+%
+\endgroup
+%
+%
+}
+%
+%
+%
+%
+%%%%
+%%%%
+\def\singleline@machinenoderotation#1#2#3{
+
+\coordinate (#1-start) at (#2);
+\coordinate (#1-end) at (#3);
+
+\pgfmathanglebetweenpoints{\pgfpointanchor{#1-start}{center}}{\pgfpointanchor{#1-end}{center}}
+\edef\tempangle{\pgfmathresult}
+\edef\nodeangle{0.0}
+\ifthenelse{ \lengthtest{\tempangle pt < 45.0 pt} }{\edef\nodeangle{90.0}}{}
+\ifthenelse{\lengthtest{45.0 pt < \tempangle pt} \AND \lengthtest{\tempangle pt < 135.0 pt}}{\edef\nodeangle{0.0}}{}
+\ifthenelse{\lengthtest{135.0 pt < \tempangle pt} \AND \lengthtest{\tempangle pt < 225.0 pt}}{\edef\nodeangle{90.0}}{}
+\ifthenelse{\lengthtest{225.0 pt < \tempangle pt} \AND \lengthtest{\tempangle pt < 315.0 pt}}{\edef\nodeangle{0.0}}{}
+\ifthenelse{\lengthtest{315.0 pt < \tempangle pt} }{\edef\nodeangle{90.0}}{}
+}
+%%%%%
+\def\singleline@noderotation#1#2#3{
+
+\coordinate (#1-start) at (#2);
+\coordinate (#1-end) at (#3);
+
+\pgfmathanglebetweenpoints{\pgfpointanchor{#1-start}{center}}{\pgfpointanchor{#1-end}{center}}
+\edef\nodeangle{\pgfmathresult}
+
+}
+%%%%
+%
+%=============================================================================================================
+%DRAWING COMMANDS
+%=============================================================================================================
+%
+%
+%
+%        
+%
+%
+\NewDocumentCommand{\inverter}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{inverter}{#2}{#3}}
+%
+\NewDocumentCommand{\switch}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{switch}{#2}{#3}}
+%
+\NewDocumentCommand{\capacitor}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{capacitor}{#2}{#3}}
+%
+\NewDocumentCommand{\inductance}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{inductance}{#2}{#3}}
+%
+\NewDocumentCommand{\linetp}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{linetp}{#2}{#3}}
+%
+\NewDocumentCommand{\resistor}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{resistor}{#2}{#3}}
+%
+\NewDocumentCommand{\reactor}{O{}r()r()}{
+\SinglelineDefineBipoleCommands[#1]{reactor}{#2}{#3}}
+%
+\NewDocumentCommand{\elload}{O{}r()r()}{
+\SinglelineDefineMonopoleCommands[#1]{load}{#2}{#3}}
+%
+\NewDocumentCommand{\elgrid}{O{}r()r()}{
+\SinglelineDefineMonopoleCommands[#1]{grid}{#2}{#3}}
+%
+\NewDocumentCommand{\pv}{O{}r()r()}{
+\SinglelineDefineMonopoleCommands[#1]{pv}{#2}{#3}}
+%
+\NewDocumentCommand{\ground}{O{}r()r()}{
+\SinglelineDefineMonopoleCommands[#1]{ground}{#2}{#3}
+}
+%
+\NewDocumentCommand{\machine}{O{}r()r()}{
+\SinglelineDefineMachine[#1]{machine}{#2}{#3}}
+%
+%
+%
+
+\NewDocumentCommand{\busbar}{O{}r()r()}{
+\begingroup
+\pgfkeys{/tikz/singleline/busbar/.cd , #1}
+
+\pgfkeys{/tikz/singleline/busbar/label/.get=\singleline@busbarlabel}
+\pgfkeys{/tikz/singleline/busbar/color/.get=\singleline@busbarcolor}
+\pgfkeys{/tikz/singleline/busbar/busbar line width/.get=\buslinewidth}
+\pgfkeys{/tikz/singleline/busbar/leftconnector/.get=\singleline@leftconnector}
+	\pgfkeys{/tikz/singleline/busbar/rightconnector/.get=\singleline@rightconnector}
+
+\singleline@noderotation{busbar}{#2}{#3}
+
+\coordinate (busbar-start) at (#2);
+
+
+\ifthenelse{ \lengthtest{\nodeangle pt < 45.0 pt} }{
+\node[bus node, rotate=0,  left =of busbar-start,\singleline@busbarcolor ](busbar-starpoint) at (busbar-start){\singleline@busbarlabel};}{}
+
+\ifthenelse{\lengthtest{45.0 pt < \nodeangle pt} \AND \lengthtest{\nodeangle pt < 135.0 pt}}{
+\node[bus node, rotate=90, below left =of busbar-start,\singleline@busbarcolor ](busbar-starpoint) at (busbar-start){\singleline@busbarlabel};}{}
+
+\ifthenelse{\lengthtest{135.0 pt < \nodeangle pt} \AND \lengthtest{\nodeangle pt < 225.0 pt}}{
+\node[bus node, rotate=0,  right =of busbar-start,\singleline@busbarcolor ](busbar-starpoint) at (busbar-start){\singleline@busbarlabel};}{}
+
+\ifthenelse{\lengthtest{225.0 pt < \nodeangle pt} \AND \lengthtest{\nodeangle pt < 315.0 pt}}{\node[bus node, rotate=90, above right =of busbar-start ](busbar-starpoint) at (busbar-start){\singleline@busbarlabel};}{}
+
+\draw[\singleline@leftconnector-\singleline@rightconnector ,\singleline@busbarcolor ,line width=\buslinewidth] (busbar-start)--(#3);
+
+\endgroup
+}
+
+\makeatother
+\endinput
