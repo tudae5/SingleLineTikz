@@ -1,0 +1,101 @@
+\documentclass[tikz, margin=10pt]{standalone}
+\usepackage{singlelinetikz}
+\usepackage{xcolor}
+\definecolor{darkgreen}{rgb}{0.2,0.8,0.6}
+
+%\pgfkeys{/tikz/singleline/busbar/busbar line width=0.45*\elsize}
+
+\begin{document}
+\begin{tikzpicture}
+
+%\draw[dashed, color=darkgreen] (-13,0) grid (13,18);
+%\foreach \x in {-13,...,13}{
+%\node[anchor=north, color=red] at (\x,0){\x};}
+%\foreach \x in {0,...,18}{
+%\node[anchor=east, color=red] at (0,\x){\x};}
+
+
+\coordinate (Bus1left) at (8,-1);
+\coordinate (Bus1right) at (12,-1);
+
+\coordinate (Bus2down) at (0,9);
+\coordinate (Bus2up) at (0,12);
+
+\coordinate (Bus3down) at (19,9);
+\coordinate (Bus3up) at (19,12);
+
+\coordinate (Bus4left) at (6,3);
+\coordinate (Bus4right) at (14,3);
+
+\coordinate (Bus5left) at (4,6);
+\coordinate (Bus5right) at (7,6);
+
+\coordinate (Bus6left) at (12,6);
+\coordinate (Bus6right) at (15,6);
+
+\coordinate (Bus7down) at (4,9);
+\coordinate (Bus7up) at (4,13);
+
+\coordinate (Bus8down) at (10,10);
+\coordinate (Bus8up) at (10,14);
+
+\coordinate (Bus9down) at (15,9);
+\coordinate (Bus9up) at (15,13);
+
+\coordinate (Line45up) at (6.5,6);
+\coordinate (Line45down) at (6.5,3);
+\coordinate (Line46up) at (13.5,6);
+\coordinate (Line46down) at (13.5,3);
+\coordinate (Line57down) at (6,6);
+\coordinate (Line57up) at (4,11);
+\coordinate (Line69down) at (Line46up);
+\coordinate (Line69up) at (15,11);
+\coordinate (Line78left) at (4,12);
+\coordinate (Line78right) at (10,12);
+\coordinate (Line89left) at (Line78right);
+\coordinate (Line89right) at (15,12);
+
+\coordinate (Gen1) at (10,-1);
+\coordinate (Trafo14) at (10,3);
+\coordinate (Trafo27) at (0,11);
+\coordinate (Trafo39) at (19,11);
+\coordinate (Triang5) at (4.5,6);
+\coordinate (Triang7) at (4,10);
+\coordinate (Triang9) at (10,13);
+\coordinate (Grid3) at (19,10);
+\coordinate (Grid8) at (10,11);
+
+\busbar[label=Bus 1](Bus1left)(Bus1right);
+\busbar[label=Bus 2](Bus2down)(Bus2up);
+\busbar[label=Bus 3](Bus3down)(Bus3up);
+\busbar[label=Bus 4](Bus4left)(Bus4right);
+\busbar[label=Bus 5](Bus5left)(Bus5right);
+\busbar[label=Bus 6](Bus6left)(Bus6right);
+\busbar[label=Bus 7](Bus7down)(Bus7up);
+\busbar[label=Bus 8](Bus8down)(Bus8up);
+\busbar[label=Bus 9](Bus9down)(Bus9up);
+
+\machine[connector=ccx-,mode=G](Gen1)($(Gen1)-(0,2)$);
+\machine[connector=ccx-, mode=G](Trafo27)($(Trafo27)-(2,0)$);
+\elload[connector=ccx-](Triang5)($(Triang5)-(0,2)$);
+\elload[connector=ccx-](Triang7)($(Triang7)-(2,0)$);
+\elload[connector=ccx-](Triang9)($(Triang9)+(2,0)$);
+\elgrid[connector=ccx-](Grid3)($(Grid3)+(2,0)$);
+\elgrid[connector=ccx-](Grid8)($(Grid8)-(2,0)$);
+
+\trafo[connector=cct-ccx](Gen1)(Trafo14);
+\trafo[connector=cct-ccx](Line57up)(Trafo27);
+\trafo[connector=cct-ccx](Line69up)(Trafo39);
+%
+\draw[cct-ccx](Line45up)--(Line45down); 
+\draw[ccf-ccf](Line46up)--(Line46down); 
+\draw[ccx-cct](Line57up)-|(Line57down); 
+\draw[ccx-cct](Line69up)-|(Line69down);
+\draw[ccx-cct](Line78left)--(Line78right); 
+\draw[cct-ccx](Line89left)--(Line89right); 
+
+\begin{small}
+\node[align=left, anchor=west] at (12,-2.5){P. Anderson and A. Fouad, Power System Control and Stability,\\ 1st ed. Iowa State University Press,Ames, Iowa, U.S.A., 1977.};
+\end{small}
+\end{tikzpicture}
+\end{document}

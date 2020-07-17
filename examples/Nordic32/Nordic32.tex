@@ -1,0 +1,492 @@
+\documentclass[]{report}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[]{singlelinetikz}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, left=2cm, right=2cm, top=2cm, bottom=2.5cm]{geometry}
+
+
+\definecolor{darkgreen}{rgb}{0.2,0.8,0.6}
+\definecolor{lgray}{rgb}{0.3,0.3,0.3}
+\definecolor{construct}{rgb}{1,0.1,0.5}
+
+\definecolor{tud9c}{RGB}{185,15,34}
+\definecolor{tud2c}{RGB}{0,104,157}
+\definecolor{tud4c}{RGB}{127,171,22}
+\definecolor{tud10c}{RGB}{149,17,105}
+\definecolor{tud7c}{RGB}{210,135,0}
+
+
+\def\elsize{0.7mm}
+\pgfkeys{/tikz/singleline/busbar/busbar line width=0.5*\elsize}
+
+
+\renewcommand{\familydefault}{\sfdefault}
+\newcommand{\singlelineset}[1]{\pgfkeys{tikz/singleline/#1}}
+
+\begin{document}
+
+\begin{figure}
+	\centering
+	
+	\resizebox{\textwidth}{!}{
+	\begin{tikzpicture}
+ 	%\draw [color=darkgreen, dashed] (0,0) grid (16,23);
+	%\foreach \x in {0,...,16}{
+	%\node[ color=red] at (\x,0){\x};
+	%\node[ color=red] at (\x,23){\x};}	
+	%\foreach \x in {0,...,23}{
+	%\node[color=red ] at (0,\x){\x};
+	%\node[color=red ] at (16,\x){\x};}
+	
+%
+ 	\singlelineset{busbar/color=tud9c} %rot
+ 
+
+    \busbar(0.5,3)(3.25,3);
+    \busbar(8.5,2.5)(13.25,2.5);
+    \busbar(1,4)(3.25,4);
+    \busbar(7.5,4)(10.25,4);
+	\busbar(12.75,4)(15.5,4);    
+    \busbar(1,7.75)(2.25,7.75); 
+	\busbar(6.25,8.75)(9.25,8.75);
+    \busbar(9.5,8.75)(12,8.75);
+    \busbar(12.25,8.75)(14.75,8.75);
+    \busbar(1.25,10.5)(4.75,10.5);
+    \busbar(11,10.75)(13.5,10.75);
+	\busbar(6.25,14)(8.75,14);
+    \busbar(10,14)(11.5,14);
+    \busbar(6.5,16)(8.5,16);
+    \busbar(10.25,15.75)(11.75,15.75);
+    \busbar(1,21)(3.5,21);
+	\busbar(5.25,21)(7.75,21);
+	\busbar(1.25,18)(3,18);
+	\busbar(4.25,19)(6.75,19);
+
+
+
+
+    
+	\singlelineset{busbar/color=tud2c} %blau   
+    
+    \busbar(3,5.25)(5.25,5.25);
+    \busbar(6.5,5.25)(9,5.25);
+    \busbar(9.5,6)(12,6);
+	\busbar(2.75,7.5)(5.25,7.5);    
+    \busbar(5.5,7.5)(7.5,7.5); 
+    \busbar(1.25,16)(3.25,16);
+    \busbar(3.5,16)(6,16);
+	\busbar(9.25,19)(12.25,19);
+	\busbar(13,19)(15.25,19);
+	\busbar(9.25,21)(12.75,21);
+	\busbar(13,21)(15.25,21);
+	 
+    
+    
+	\singlelineset{busbar/color=tud4c} %grün   
+    
+    \busbar(1.25,14)(3.5,14);
+    \busbar(3.75,14)(6,14);
+
+    
+	\singlelineset{busbar/color=tud10c} %lila
+	
+	\busbar(0.5,2)(1,2);
+    \busbar(1.25,2)(1.75,2);
+    \busbar(10.5,3.5)(11,3.5);	
+	\busbar(11.25,3.5)(11.75,3.5);
+	\busbar(2.25,5)(2.75,5);
+	\busbar(14.25,5)(14.75,5);
+    \busbar(15,5)(15.5,5);
+    \busbar(10.75,7)(11.25,7);
+	\busbar(4.25,8.5)(4.75,8.5);    
+    \busbar(3.75,9.5)(4.25,9.5);
+    \busbar(12.75,9.75)(13.25,9.75);
+    \busbar(2,13)(2.5,13);
+    \busbar(1.5,15)(2,15);   
+    \busbar(8.25,15)(8.75,15); 
+    \busbar(2,17)(2.5,17);
+	\busbar(4.5,17)(5,17);
+	\busbar(11,16.75)(11.5,16.75);    
+	\busbar(5,18)(5.5,18);
+    \busbar(10.25,18)(10.75,18);
+    \busbar(14.5,18)(15,18);
+    \busbar(2.5,22)(3,22);
+	\busbar(6,22)(6.5,22);
+	\busbar(13.75,22)(14.25,22);
+	
+	
+	\singlelineset{busbar/color=tud7c} %orange    
+
+	\busbar(2.75,2)(3.25,2);	
+	\busbar(12,3.5)(12.5,3.5);    
+    \busbar(4,4.25)(4.5,4.25);
+    \busbar(6.5,4.25)(7,4.25);
+    \busbar(1.25,5)(1.75,5);
+    \busbar(10.75,5)(11.25,5);
+    \busbar(12.75,5)(13.25,5);
+	\busbar(1.25,6.75)(1.75,6.75);    
+	\busbar(10,7.75)(10.5,7.75);
+    \busbar(13,7.75)(13.5,7.75);
+    \busbar(3,8.5)(3.5,8.5);
+    \busbar(5.5,8.5)(6,8.5);    
+	\busbar(2.25,9.5)(2.75,9.5);    
+	\busbar(12.5,11.75)(13,11.75);    
+    \busbar(1.25,13)(1.75,13);
+    \busbar(4.75,13)(5.25,13);
+    	\busbar(4.5,15)(5,15); 
+    	\busbar(1.25,17)(1.75,17);    
+   	\busbar(1,20)(1.5,20);
+	\busbar(9.75,20)(10.25,20);
+	\busbar(11,20)(11.5,20);
+	\busbar(14.75,20)(15.25,20);
+	
+	
+	\begin{scope}
+	\tikzset{every path/.style={color=tud9c}}%rot
+	\draw(1.5,3)--(1.5,4);
+	\draw(2,3)--(2,4);
+	\draw(9.5,2.5)--(9.5,4);
+	\draw(10,2.5)--(10,4);
+	\draw(2.5,4)--(2.5,3.5)--(8,3.5)--(8,4);
+	\draw(9.5,4)--(9.5,5)--(8,7.75)--(8,8.75);
+	\draw(10,4)--(10,5)--(8.5,7.75)--(8.5,8.75);
+	\draw(2,4)--(2,10.5);
+	\draw(13.5,4)--(13.5,5.5)--(11.25,8)--(11.25,8.75);
+	\draw(14,4)--(14,5.5)--(14.5,8)--(14.5,8.75);
+	\draw(7.5,8.75)--(7.5,9.25)--(4.5,10)--(4.5,10.5);
+	\draw(9,8.75)--(9,8.25)--(9.75,8.25)--(9.75,8.75);
+	\draw(11.75,8.75)--(11.75,8.25)--(12.5,8.25)--(12.5,8.75);
+    \draw(8,8.75)--(8,10.25)--(10.75,13)--(10.75,14);
+	\draw(8.5,8.75)--(8.5,9.25)--(11.5,10.25)--(11.5,10.75);
+	\draw(10.5,8.75)--(10.5,9.25)--(12,10.25)--(12,10.75);
+	\draw(3,10.5)--(3,11)--(7,13.5)--(7,14);
+	\draw(3.5,10.5)--(3.5,11)--(7.5,13.5)--(7.5,14);
+	\draw(11.75,10.75)--(11.75,11.25)--(11.25,13.5)--(11.25,14);
+   	\draw(12.25,10.75)--(12.25,11.25)--(11.25,15.25)--(11.25,15.75);
+   	\draw(7,14)--(7,16);
+   	\draw(7.5,14)--(7.5,16);	
+   	\draw(10.75,14)--(10.75,15.75);
+	\draw(8,14)--(8,13.5)--(10.25,13.5)--(10.25,14);
+   	\draw(10.75,15.75)--(10.75,16.25)--(7,20.5)--(7,21);
+   	\draw(7,16)--(7,16.5)--(6,18.5)--(6,19);
+   	\draw(7.5,16)--(7.5,16.5)--(6.5,20.5)--(6.5,21);
+   	\draw(1.75,18)--(1.75,21);
+   	\draw(2.25,18)--(2.25,21);
+   	\draw(5.5,19)--(5.5,20)--(2.75,20)--(2.75,21);
+   	\draw(6,19)--(6,21);
+   	\draw(6.5,18.5)--(6.5,19);
+   	\draw(3.25,21)--(3.25,20.5)--(5.5,20.5)--(5.5,21);
+   	\draw(7.5,21)--(7.5,20.5); 
+   	\draw(6.75,16)--(6.75,15.5);
+   	\draw(6.5,13.5)--(6.5,14);
+   	
+   	
+   	\node[draw, slinductance, rotate = 90, scale = 2](comp1) at (2,21.5){} ;
+   	\node[draw, slinductance, rotate = -90, scale = 2](comp2) at (4.5,18.5){} ;
+   	\node[draw, slcapacitor, rotate=90, scale=1] (comp4) at (3.25,10.25){};
+   	\node[draw, slcapacitor, rotate=90, scale=1] (comp7) at (10.75,8.5){};
+   	\node[draw, slcapacitor, rotate=90, scale=1] (comp8) at (13.75,8.5){};
+   	\node[draw, slcapacitor, rotate=90, scale=1] (comp11) at (2.25,2.75){};
+   	 \node[draw, slcapacitor, rotate=90, scale=1] (comp12) at (10.25,2.25){};
+	\draw(comp1)--(2,21);  
+	\draw(comp2)--(4.5,19); 
+	\draw(comp4)--(3.25,10.5);  	
+ 	\draw(comp7)--(10.75,8.75);  	
+ 	\draw(comp8)--(13.75,8.75);  	
+ 	\draw(comp11)--(2.25,3);  	
+ 	\draw(comp12)--(10.25,2.5);  	
+
+   	
+	\end{scope}	
+		
+	
+	
+	   	 
+		
+	
+	\begin{scope}
+	\tikzset{every path/.style={color=tud2c}}
+	\draw(3.5,5.25)--(3.5,7.5);
+	\draw(4,5.25)--(4,7.5);
+	\draw(4.5,5.25)--(4.5,6.25)--(7.25,6.25)--(7.25,5.25);
+	\draw(5,5.25)--(5,5.75)--(6.75,5.75)--(6.75,5.25);
+	\draw(8,5.25)--(8,5.75)--(10,5.75)--(10,6);
+	\draw(4.5,7.5)--(4.5,6.5)--(6.25,6.5)--(6.25,7.5);
+	\draw(5,7.5)--(5,7)--(5.75,7)--(5.75,7.5);
+	\draw(6.75,7.5)--(6.75,6.5)--(9.75,6.5)--(9.75,6);
+	\draw(7.25,7.5)--(7.25,7)--(10.25,7)--(10.25,6);
+	\draw(3,16)--(3,15.5)--(3.75,15.5)--(3.75,16);
+   	\draw(2.5,16)--(2.5,15)--(4.25,15)--(4.25,16);
+   	\draw(11.25,19)--(11.25,18)--(14,18)--(14,19);
+   	\draw(11.75,19)--(11.75,18.5)--(13.5,18.5)--(13.5,19);
+   	\draw(12,21)--(12,20)--(13.75,20)--(13.75,21);
+   	\draw(12.5,21)--(12.5,20.5)--(13.25,20.5)--(13.25,21);
+	\draw(5.75,16)--(5.75,15.5) ;
+	\draw(9.5,18.5)--(9.5,19);
+	\draw(14.5,19)--(14.5,21);
+	\draw(9.5,20.5)--(9.5,21);
+	
+	\node[draw,scale=1,rotate=90,slcapacitor](comp3)at(5.375,15.75){};
+	\node[draw,scale=1,rotate=90,slcapacitor](comp5) at (3.75,7.75){};
+	\node[draw,scale=1,rotate=90,slcapacitor](comp6) at (6.25,7.75){};
+	\node[draw,scale=1,rotate=90,slcapacitor] (comp9) at (4.75,5){};
+	\node[draw,scale=1,rotate=90,slcapacitor] (comp10) at (7.25,5){};	
+	
+	\draw(comp3)--(5.375,16);
+	\draw(comp5)--(3.75,7.5);
+	\draw(comp6)--(6.25,7.5);
+	\draw(comp9)--(4.75,5.25);
+	\draw(comp10)--(7.25,5.25);
+
+	\end{scope}
+	
+	\begin{scope}
+	\tikzset{every path/.style={color=tud4c}}
+	\draw(3.25,14)--(3.25,13.5)--(4,13.5)--(4,14);
+   	\draw(2.75,14)--(2.75,13)--(4.5,13)--(4.5,14);
+   	\draw(5.5,14)--(5.5,13.5); 
+
+   	   	
+   	\end{scope}
+   	
+    	\singlelineset{bipoles/trafo/two colored}   	 
+	\singlelineset{bipoles/trafo/first color=tud9c}   	
+    	\singlelineset{bipoles/trafo/second color=tud10c}   	
+    		\trafo(0.75,3)(0.75,2);
+    		\trafo(1.5,3)(1.5,2);
+    		\trafo(2.5,4)(2.5,5);
+    		\trafo(10.75,2.5)(10.75,3.5);
+        \trafo(11.5,2.5)(11.5,3.5);
+        \trafo(14.5,4)(14.5,5);
+    		\trafo(15.25,4)(15.25,5);
+    		\trafo(4,10.5)(4,9.5);
+    		\trafo(13,10.75)(13,9.75);
+    		\trafo(8.5,14)(8.5,15);
+    		\trafo(11.25,15.75)(11.25,16.75);
+    		\trafo(2.25,18)(2.25,17);
+    		\trafo(5.25,19)(5.25,18);
+		\trafo(2.75,21)(2.75,22);
+    		\trafo(6.25,21)(6.25,22);
+    	\singlelineset{bipoles/trafo/second color=tud4c}   	
+    		\trafo(6.5,13.5)(5.5,13.5);   
+    \singlelineset{bipoles/trafo/second color=tud7c}  
+    		\trafo(3,3)(3,2);
+    		\trafo(1.5,4)(1.5,5);
+    		\trafo(1.5,7.75)(1.5,6.75);
+    		\trafo(12.25,2.5)(12.25,3.5);
+    		\trafo(10.25,8.75)(10.25,7.75);
+    		\trafo(13.25,8.75)(13.25,7.75);
+    		\trafo(2.5,10.5)(2.5,9.5);
+    		\trafo(12.75,10.75)(12.75,11.75);
+    		\trafo(1.5,18)(1.5,17);
+    		\trafo(1.25,21)(1.25,20);
+    		\trafo(13,4)(13,5);    
+  	\singlelineset{bipoles/trafo/second color=tud2c}        
+    		\trafo(8,4)(8,5.25);
+    		\trafo(8.75,4)(8.75,5.25);
+    		\trafo(6.75,15.5)(5.75,15.5);
+    		\trafo(6.5,18.5)(9.5,18.5);
+		\trafo(7.5,20.5)(9.5,20.5);
+		\trafo(6.75,8.75)(6.75,7.5);
+    		\trafo(7.25,8.75)(7.25,7.5);    
+    \singlelineset{bipoles/trafo/first color=tud2c} 
+    \singlelineset{bipoles/trafo/second color=tud10c}   	
+    		\trafo(4.5,7.5)(4.5,8.5);
+    		\trafo(1.75,16)(1.75,15);
+    		\trafo(14.75,19)(14.75,18);
+    		\trafo(10.5,19)(10.5,18);
+    		\trafo(14,21)(14,22);
+    		\trafo(11,6)(11,7);
+    \singlelineset{bipoles/trafo/second color=tud7c}
+    		\trafo(4.25,5.25)(4.25,4.25);
+    		\trafo(6.75,5.25)(6.75,4.25);  		
+    		\trafo(11,6)(11,5);
+    		\trafo(3.25,7.5)(3.25,8.5);   		
+    		\trafo(5.75,7.5)(5.75,8.5);
+	    \trafo(4.75,16)(4.75,15);
+	    \trafo(11.25,19)(11.25,20);
+	    \trafo(10,21)(10,20);
+    		\trafo(15,21)(15,20);
+    		\trafo(4.75,16)(4.75,17);
+	\singlelineset{bipoles/trafo/first color=tud4c}
+	\singlelineset{bipoles/trafo/second color=tud10c} 
+	    \trafo(2.25,14)(2.25,13);
+	\singlelineset{bipoles/trafo/second color=tud7c}	
+		\trafo(1.5,14)(1.5,13);
+    		\trafo(5,14)(5,13);	
+	
+	\singlelineset{monopoles/machine/color=tud10c}   
+
+	\machine[mode=tilde](0.75,2)(0.75,1.5); 
+	\machine[mode=tilde](1.5,2)(1.5,1.5); 
+	\machine[mode=tilde](10.75,3.5)(10.75,4);
+	\machine[mode=tilde](11.5,3.5)(11.5,4); 
+	\machine[mode=tilde](2.5,5)(2.5,5.5);
+	\machine[mode=tilde](14.5,5)(14.5,5.5);
+	\machine[mode=tilde](15.25,5)(15.25,5.5);
+	\machine[mode=tilde](11,7)(11,7.5);
+	\machine[mode=tilde](4.5,8.5)(4.5,9);
+	\machine[mode=tilde](4,9.5)(4,9);
+	\machine[mode=tilde](13,9.75)(13,9.25);
+	\machine[mode=tilde](2.25,13)(2.25,12.5);
+	\machine[mode=tilde](1.75,15)(1.75,14.5);
+	\machine[mode=tilde](8.5,15)(8.5,15.5);
+	\machine[mode=tilde](2.25,17)(2.25,16.5);
+	\machine[mode=tilde](4.75,17)(4.75,17.5);
+	\machine[mode=tilde](11.25,16.75)(11.25,17.25);
+	\machine[mode=tilde](5.25,18)(5.25,17.5);
+	\machine[mode=tilde](10.5,18)(10.5,17.5);
+	\machine[mode=tilde](14.75,18)(14.75,17.5);
+	\machine[mode=tilde](2.75,22)(2.75,22.5);
+	\machine[mode=tilde](6.25,22)(6.25,22.5);
+	\machine[mode=tilde](14,22)(14,22.5);
+	
+    	\singlelineset{monopoles/load/color=tud7c}   
+
+	\elload(1.5,5)(1.5,5.5);
+    \elload(3,2)(3,1.5); 
+    \elload(12.25,3.5)(12.25,4);
+    \elload(4.25,4.25)(4.25,3.75);
+    \elload(6.75,4.25)(6.75,3.75);
+    \elload(11,5)(11,4.5);
+    \elload(13,5)(13,5.5);
+    \elload(1.5,6.75)(1.5,6.25);
+    \elload(10.25,7.75)(10.25,7.25);
+    \elload(13.25,7.75)(13.25,7.25); 
+    \elload(3.25,8.5)(3.25,9);
+    \elload(5.75,8.5)(5.75,9);
+    \elload(2.5,9.5)(2.5,9);
+    \elload(12.75,11.75)(12.75,12.25);
+    \elload(1.5,13)(1.5,12.5);
+    \elload(5,13)(5,12.5);
+    \elload(4.75,15)(4.75,14.5);
+    \elload(1.5,17)(1.5,16.5);
+    \elload(1.25,20)(1.25,19.5);
+    \elload(10,20)(10,19.5);
+    \elload(15,20)(15,19.5);
+    \elload(11.25,20)(11.25,20.5);
+    
+   
+	\draw[dashed, line width=1.5pt](0.5,8.5)--(2.25,8.5)--(2.5,8.25)--(2.5,6.25)--(2.85,6)--(2.85,4.5)--(6,1.5);
+	\draw[dashed, line width=1.5pt](0.5,11.5)--(10.5,11.5)--(13,13);
+	\draw[dashed, line width=1.5pt](0.5,16.25)--(4,16.25)--(4,22.5);
+	\draw[line width=1pt] (12.5,14) rectangle (15,17);
+	
+	\node[align=center] at (3,19){Externe \\ Region};
+	\node[align=center] at (9,12.5){Nördliche\\ Region};
+	\node[align=center] at (6.5,10.5){Zentrale \\ Region};
+	\node[align=center] at (4.5,1.5){Südliche \\ Region};
+
+	\draw[color=tud9c, line width = 1.5pt](13.5,16.5)--(13,16.5);
+	\draw[color=tud4c, line width = 1.5pt](13.5,16)--(13,16);
+	\draw[color=tud2c, line width = 1.5pt](13.5,15.5)--(13,15.5);
+	\draw[color=tud7c, line width = 1.5pt](13.5,15)--(13,15);
+	\draw[color=tud10c, line width = 1.5pt](13.5,14.5)--(13,14.5);
+
+	\node at (14.25,16.5){400\,kV};
+	\node at (14.25,16){220\,kV};
+	\node at (14.25,15.5){130\,kV};
+	\node at (14.25,15){20\,kV};
+	\node at (14.25,14.5){15\,kV};
+	
+	\begin{footnotesize}
+	\node[anchor = south west] at (1,21){4071};
+	\node[anchor = south east] at (3,18){4072};
+	\node[anchor = south west] at (5.25,21){4011};
+	\node[anchor = south west] at (9.25,21){1011};
+	\node[anchor = south west] at (13,21){1013};
+	\node[anchor = south west] at (4.25,19){4012};
+	\node[anchor = south west] at (9.25,19){1012};
+	\node[anchor = south west] at (13,19){1014};
+	\node[anchor = east] at (1.25,16){1021};
+	\node[anchor = south east] at (6,16){1022};
+	\node[anchor = south east] at (8.5,16){4022};
+	\node[anchor = south west] at ($(10.25,15.75)-(0.3,0)$){4021};
+	\node[anchor = south east] at (3.5,14){2032};
+	\node[anchor = south east] at (6,14){2031};
+	\node[anchor = south west] at (6.25,14){4031};
+	\node[anchor = south west] at (10,14){4032};
+	\node[anchor = south west] at (1.25,10.5){4041};
+	\node[anchor = south west] at (11,10.75){4042};
+	\node[anchor = south west] at (6.25,8.75){4044};
+	\node[anchor = south west] at (9.5,8.75){4043};
+	\node[anchor = south east] at (14.75,8.75){4046};
+	\node[anchor = south west] at (1,7.75){4061};
+	\node[anchor = north west] at (2.75,7.5){1043};
+	\node[anchor = north west] at (7.2,7.5){1044};
+	\node[anchor = north west] at (3,5.25){1041};
+	\node[anchor = east] at (6.5,5.25){1045};
+	\node[anchor = south east] at (12,6){1042};
+	\node[anchor = north west] at (12.75,4){4047};
+	\node[anchor = north west] at (8,4){4045};
+	\node[anchor = south west] at (8.5,2.5){4051};
+	\node[anchor = south west] at (0.5,3){4063};
+	\node[anchor = east] at (1,4){4062};
+
+	\node[anchor = west] at (3,22){g19};
+	\node[anchor = east] at (6,22){g9};
+	\node[anchor = east] at (13.75,22){g2};
+	\node[anchor = east] at (10.25,18){g1};
+	\node[anchor = east] at (5,18){g10};
+	\node[anchor = west] at (15,18){g3};
+	\node[anchor = west] at (5,17){g5};
+	\node[anchor = west] at (2.5,17){g20};
+	\node[anchor = west] at (11.5,16.75){g11};
+	\node[anchor = east] at (1.5,15){g4};
+	\node[anchor = east] at (8.25,15){g12};
+	\node[anchor = north east] at ($(2.75,13)+(0.1,0)$){g8};
+	\node[anchor = east] at (3.75,9.5){g13};
+	\node[anchor = east] at (12.75,9.75){g14};
+	\node[anchor = west] at (4.75,8.5){g7};
+	\node[anchor = west] at (11.25,7){g6};
+	\node[anchor = south east] at ($(14.25,5)+(0.3,-0.1)$){g15};
+		\node[anchor = south west] at ($(15.5,5)-(0.3,0.05)$){g15\_b};
+		\node[anchor = south east] at ($(2.25,5)+(0.3,-0.1)$){g17};
+	\node[anchor = south east] at ($(10.5,3.5)+(0.3,-0.1)$){g16};
+		\node at (11.5,4.35){g16\_b};
+		\node at (0.75,1.1){g18};
+		\node at (1.5,1.1){g18\_b};
+
+
+	\node[anchor = east] at (1,20){71};
+	\node[anchor = east] at (9.5,20){11};
+	\node[anchor = east] at (11,20){12};
+	\node[anchor = west] at (15.25,20){13};
+	\node[anchor = east] at (1.25,17){71};
+	\node[anchor = west] at (5,15){22};
+	\node[anchor = east] at (1.25,13){32};
+	\node[anchor = west] at (5.25,13){31};
+	\node[anchor = west] at (13,11.75){42};
+	\node[anchor = north east] at ($(2.25,9.5)+(0.3,0)$){41};
+	\node[anchor = south west] at ($(3,8.5)-(0.05,0.05)$){3};
+	\node[anchor = south west] at ($(5.5,8.5)-(0.05,0.05)$){4};
+	\node[anchor = east] at (10,7.75){43};
+	\node[anchor = east] at (13,7.75){46};
+	\node[anchor = east] at (1.25,6.75){61};
+	\node[anchor = east] at (1.25,5){62};
+	\node[anchor = east] at (10.75,5){2};
+	\node[anchor = east] at (12.75,5){47};
+	\node[anchor = east] at (4,4.25){1};
+	\node[anchor = east] at (6.5,4.25){5};
+	\node[anchor = south east] at ($(12.5,3.5)+(0.2,-0.05)$){51};
+	\node[anchor = east] at (2.75,2){63};
+
+
+
+
+
+
+
+
+
+	\end{footnotesize}
+	
+	
+	
+	\node at (11,0.5){\footnotesize{CIGRE Task Force 38-02-08, “Long term dynamics phase ii: Final report”, 1995.}};
+	\end{tikzpicture}}
+	%\caption{This is a testcaption for the Nordic32 grid, created with the new cool \texttt{singleline} \LaTeX - package.}
+	\end{figure}
+	%
+\end{document}
