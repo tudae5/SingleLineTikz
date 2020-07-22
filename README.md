@@ -21,6 +21,8 @@ In addition, the following Tikz libraries are used:
 
 The stable version is available on CTAN (soon) and is included within the major latex distributions(Texlive, Miktex).
 
+It is also possible to use the current development version of this package by simply copying the singlelinetikz.sty file found in this repository directly to the root folder of a Latex project.
+
 # Usage
 
 Just place: 
