@@ -184,12 +184,21 @@ In the above figure, $\phi$ is the angle between the positive $x$-axis and the m
 \node[anchor=west] at (6,0) {\verb+\pv(0,0)(3,0);+};
 \end{tikzpicture}
 \end{examplebox}
+\paragraph{Battery} \ \color{myblue}\verb+\battery(coordinate1)(coordinate2);+\color{black}
+\begin{examplebox}
+	\begin{tikzpicture}
+	\battery(0,2)(3,2);
+	\battery[mode=small](0,0)(3,0);
+	\node[anchor=west] at (6,2) {\verb+\battery(0,2)(3,2);+};
+	\node[anchor=west] at (6,0) {\verb+\battery[mode=small](0,0)(3,0);+};
+	\end{tikzpicture}
+\end{examplebox}
 \paragraph{Load} \ \color{myblue}\verb+\elload(coordinate1)(coordinate2);+\color{black}
 \begin{examplebox}
 \begin{tikzpicture}
 \elload(0,2)(3,2);
 \elload[mode=small](0,0)(3,0);
-\node[anchor=west] at (6,2) {\verb+\elload(0,0)(3,0);+};
+\node[anchor=west] at (6,2) {\verb+\elload(0,2)(3,2);+};
 \node[anchor=west] at (6,0) {\verb+\elload[mode = small](0,0)(3,0);+};
 \end{tikzpicture}
 \end{examplebox}
@@ -392,12 +401,14 @@ The \verb+debug+ option of the transformer command prints the coordinates of the
 \verb+\inverter(coordinate1)(coordinate2);+\color{black}
 \begin{examplebox}
 \begin{tikzpicture}
-\inverter(0,3)(2,3);
-\inverter[mode=dcac](0,1.5)(2,1.5);
-\inverter[mode=dcdc](0,0)(2,0);
-\node[anchor=west] at (5,3){\verb+\inverter(0,3)(2,3);+};
-\node[anchor=west] at (5,1.5){\verb+\inverter[mode=dcac](0,1.5)(2,1.5);+};
-\node[anchor=west] at (5,0){\verb+\inverter[mode=dcdc](0,0)(2,0);+};
+\inverter(0,4.5)(2,4.5);
+\inverter[mode=dcac](0,3)(2,3);
+\inverter[mode=dcdc](0,1.5)(2,1.5);
+\inverter[mode=acac](0,0)(2,0);
+\node[anchor=west] at (5,4.5){\verb+\inverter(0,4.5)(2,4.5);+};
+\node[anchor=west] at (5,3){\verb+\inverter[mode=dcac](0,3)(2,3);+};
+\node[anchor=west] at (5,1.5){\verb+\inverter[mode=dcdc](0,1.5)(2,1.5);+};
+\node[anchor=west] at (5,0){\verb+\inverter[mode=acac](0,0)(2,0);+};
 \end{tikzpicture}
 \end{examplebox}
 \paragraph{Resistor} \ \color{myblue}
@@ -487,7 +498,10 @@ Command & Mode & Shape identifier\\
 \midrule
 \verb+\machine+        & all modes             & slcircle      \\
 \verb+\pv+              &                       & slpv          \\
-\verb+\load+            &                       & slload                \\
+\verb+\battery+			& default				& slbattery \\
+						& \verb+small+ 				& slsmallbattery \\
+\verb+\load+            & default                      & slload                \\
+            			& \verb+small+          & slsmallload                \\
 \verb+\ground+  &                       & slground      \\
 \verb+\elgrid+  &                       & slgrid                \\
 \verb+\trafo+   & default       & sltrafo       \\      
@@ -498,6 +512,7 @@ Command & Mode & Shape identifier\\
 \verb+\inverter+        & default       & sldcac                \\
                                 & \verb+acdc+           & slacdc                \\
                                 & \verb+dcdc+           & sldcdc                \\
+                                & \verb+acac+           & slacac                \\
 \verb+\resistor+        & default       & slresistor \\
                                 & \verb+reg+                    & slregresistor \\
 \verb+\capacitor+       & default       & slcapacitor   \\
@@ -898,6 +913,18 @@ For \verb+singlelinetikz+ defined keys can be found in the next section. The val
 /tikz/singleline/monopoles/pv/connector
 /tikz/singleline/monopoles/pv/leftconnector
 /tikz/singleline/monopoles/pv/rightconnector
+\end{verbatim}
+\paragraph{Battery}
+\begin{verbatim}
+/tikz/singleline/monopoles/battery
+/tikz/singleline/monopoles/battery/color
+/tikz/singleline/monopoles/battery/scale
+/tikz/singleline/monopoles/battery/line width
+/tikz/singleline/monopoles/battery/label
+/tikz/singleline/monopoles/battery/shape
+/tikz/singleline/monopoles/battery/connector
+/tikz/singleline/monopoles/battery/leftconnector
+/tikz/singleline/monopoles/battery/rightconnector
 \end{verbatim}
 \paragraph{Load}
 \begin{verbatim}
