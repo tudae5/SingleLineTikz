@@ -214,10 +214,13 @@ In the above figure, $\phi$ is the angle between the positive $x$-axis and the m
 \color{myblue}\verb+\elgrid(coordinate1)(coordinate2);+\color{black}
 \begin{examplebox}
 \begin{tikzpicture}
-\elgrid(0,0)(3,0);
-\node[anchor=west] at (6,0) {\verb+\elgrid(0,0)(3,0);+};
+\elgrid(0,2)(3,2);
+\node[anchor=west] at (6,2) {\verb+\elgrid(0,2)(3,2);+};
+\elgrid [mode =square](0,0)(3,0);
+\node[anchor=west] at (6,0) {\verb+\elgrid[mode = square](0,0)(3,0);+};
 \end{tikzpicture}
 \end{examplebox}
+\newpage
 \subsection{Bipoles}
 Circuit symbols at the center of a line are called bipoles. As monopoles they rely on the basic pattern
 \begin{itemize}
@@ -251,7 +254,7 @@ Circuit symbols at the center of a line are called bipoles. As monopoles they re
 \verb+\end{tikzpicture}+
 \end{minipage}
 \end{examplebox}
-\newpage
+%\newpage
 \subsubsection{Transformer} 
 \label{sec:Trafo}
 \begin{itemize}

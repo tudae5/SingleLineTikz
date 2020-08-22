@@ -495,12 +495,13 @@ defaults={length=8pt}}
 % Monopole				                 Shape identifiers
 %-----------------------------------------------------------------------------------------------------
 % grid							slgrid
+% 								slsquaregrid
 % load							slload
 %                               slsmallload
 % machine						slcircle
 % photovoltaic					slpv
 % battery						slbattery
-%								slsmallbattery 
+%						slsmallbattery 
 % ground						slground
 %
 %
@@ -598,6 +599,63 @@ defaults={length=8pt}}
 \pgfusepathqstroke
 
 }
+}
+%
+%=========
+%
+\pgfdeclareshape{slsquaregrid}{
+	\savedanchor{\upperrightcorner}{
+		\pgfkeysgetvalue{/tikz/singleline/monopoles/grid/scale}{\singleline@gridscale}
+		\pgfmathsetlength\pgf@x{\singleline@gridscale*3*(\elsize)} 
+		\pgfmathsetlength\pgf@y{\singleline@gridscale*3*(\elsize)} 
+	}
+	\savedanchor{\lowerleftcorner}{
+		\pgf@x= -\pgf@x
+		\pgf@y= -\pgf@y}
+	\anchor{north east}{\upperrightcorner}
+	\anchor{north west}{
+		\upperrightcorner
+		\pgf@x=-\pgf@x}
+	\anchor{north}{
+		\upperrightcorner
+		\pgf@x= 0pt}
+	\anchor{east}{
+		\upperrightcorner
+		\pgf@y= 0pt}
+	\anchor{south east}{
+		\upperrightcorner
+		\pgf@y=-\pgf@y}
+	\anchor{south}{
+		\lowerleftcorner
+		\pgf@x= 0pt}
+	\anchor{west}{
+		\lowerleftcorner
+		\pgf@y= 0pt}
+	\anchor{center}{\pgfpointorigin}
+	
+	\anchorborder{%
+		\@tempdima=\pgf@x
+		\@tempdimb=\pgf@y
+		\pgfpointborderrectangle{\pgfpoint{\@tempdima}{\@tempdimb}}{\upperrightcorner}
+	}
+	\backgroundpath{
+		\pgfkeysgetvalue{/tikz/singleline/monopoles/grid/scale}{\singleline@gridscale}
+		\def\singleline@gridwidth{\singleline@gridscale*3*\elsize}
+		\def\singleline@gridhight{\singleline@gridscale*3*\elsize}
+		
+		\pgfpathrectanglecorners{\pgfpoint{-\singleline@gridwidth}{-\singleline@gridhight}}{\pgfpoint{\singleline@gridwidth}{\singleline@gridhight}}
+		\pgfpathmoveto{\pgfpoint{0pt}{-\singleline@gridhight}}
+		\pgflineto{\pgfpoint{-\singleline@gridwidth}{0pt}}
+		\pgflineto{\pgfpoint{0pt}{\singleline@gridhight}}
+		\pgflineto{\pgfpoint{\singleline@gridwidth}{0pt}}
+		\pgflineto{\pgfpoint{0pt}{-\singleline@gridhight}}
+		\pgfpathmoveto{\pgfpoint{-\singleline@gridwidth}{-\singleline@gridhight}}
+		\pgflineto{\pgfpoint{\singleline@gridwidth}{\singleline@gridhight}}
+		\pgfpathmoveto{\pgfpoint{-\singleline@gridwidth}{\singleline@gridhight}}
+		\pgflineto{\pgfpoint{\singleline@gridwidth}{-\singleline@gridhight}}
+		\pgfusepathqstroke
+		
+	}
 }
 %----------------PV-----------------------
 %%%
@@ -2576,7 +2634,8 @@ line width/.initial={\singleline@linewidth},
 leftconnector/.initial={},
 rightconnector/.initial={},
 shape/.initial={slgrid},
-mode/.initial={},
+mode/.is choice,
+mode/square/.code ={\pgfkeys{/tikz/singleline/monopoles/grid/shape=slsquaregrid}},
 scale/.initial={1},
 }
 %
